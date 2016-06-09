@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/flight" />
             <option value="$PROJECT_DIR$/home" />
             <option value="$PROJECT_DIR$/hotel" />
+            <option value="$PROJECT_DIR$/rn" />
           </set>
         </option>
         <option name="myModules">
@@ -22,6 +23,7 @@
             <option value="$PROJECT_DIR$/flight" />
             <option value="$PROJECT_DIR$/home" />
             <option value="$PROJECT_DIR$/hotel" />
+            <option value="$PROJECT_DIR$/rn" />
           </set>
         </option>
       </GradleProjectSettings>
