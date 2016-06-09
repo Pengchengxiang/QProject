@@ -1,4 +1,4 @@
-package com.qunar.qproject;
+package com.qunar.home;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

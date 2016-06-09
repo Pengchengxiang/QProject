@@ -1,4 +1,4 @@
-package com.qunar.qproject;
+package com.qunar.home;
 
 import org.junit.Test;
 

@@ -1,4 +1,4 @@
-package com.qunar.qproject;
+package com.qunar.home;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
