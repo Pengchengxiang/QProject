@@ -9,13 +9,19 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/common" />
+            <option value="$PROJECT_DIR$/flight" />
             <option value="$PROJECT_DIR$/home" />
+            <option value="$PROJECT_DIR$/hotel" />
           </set>
         </option>
         <option name="myModules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/common" />
+            <option value="$PROJECT_DIR$/flight" />
             <option value="$PROJECT_DIR$/home" />
+            <option value="$PROJECT_DIR$/hotel" />
           </set>
         </option>
       </GradleProjectSettings>
