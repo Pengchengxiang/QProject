@@ -11,15 +11,18 @@ import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
 import com.qunar.hotel.response.HttpsResponse;
+import com.qunar.hotel.ssl.HttpsHelper;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
-import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class NextActivity extends AppCompatActivity {
     private EditText userNameEditText;
@@ -61,40 +64,88 @@ public class NextActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            URL url = new URL("http://192.168.111.98:8080/qserver/HttpsServlet?userName=" + userName + "&passWord=" + passWorld);
-                            HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
-                            httpURLConnection.setRequestMethod("GET");
-                            if (httpURLConnection.getResponseCode() == 200) {
-                                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
-                                String result = new String();
-                                String readLine;
-                                if ((readLine = bufferedReader.readLine()) != null) {
-                                    result += readLine;
-                                }
-                                bufferedReader.close();
-                                httpURLConnection.disconnect();
-
-                                Message message = handler.obtainMessage();
-                                message.what = 1;
-                                Bundle bundle = new Bundle();
-                                HttpsResponse httpsResponse = JSON.parseObject(result, HttpsResponse.class);
-                                bundle.putSerializable("result", httpsResponse);
-                                message.setData(bundle);
-                                handler.sendMessage(message);
-                            }
-                        } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
-                        } catch (ProtocolException e) {
-                            e.printStackTrace();
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+//                        doLoginGet(userName, passWorld);
+                        doLoginPost(userName,passWorld);
                     }
                 }).start();
             }
         });
+    }
+
+    /**
+     * 执行登录Get请求
+     * @param userName 用户名
+     * @param passWorld 用户密码
+     */
+    private void doLoginGet(String userName, String passWorld) {
+        try {
+            String url = "https://192.168.1.103:8443/qserver/HttpsServlet?userName=" + userName + "&passWord=" + passWorld;
+            HttpsURLConnection httpsURLConnection = HttpsHelper.getHttpsURLConnection(this,url,"GET");
+            if (httpsURLConnection.getResponseCode() == 200) {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpsURLConnection.getInputStream()));
+                String result = new String();
+                String readLine;
+                if ((readLine = bufferedReader.readLine()) != null) {
+                    result += readLine;
+                }
+                bufferedReader.close();
+                httpsURLConnection.disconnect();
+
+                Message message = handler.obtainMessage();
+                message.what = 1;
+                Bundle bundle = new Bundle();
+                HttpsResponse httpsResponse = JSON.parseObject(result, HttpsResponse.class);
+                bundle.putSerializable("result", httpsResponse);
+                message.setData(bundle);
+                handler.sendMessage(message);
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 执行登录Post请求
+     * @param userName 用户名
+     * @param passWorld 用户密码
+     */
+    private void doLoginPost(String userName, String passWorld) {
+        try {
+            String url = "http://192.168.1.103:8443/qserver/HttpsServlet";
+            HttpsURLConnection httpsURLConnection = HttpsHelper.getHttpsURLConnection(this,url,"POST");
+            String params = "userName=" + userName + "&passWord=" + passWorld;
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(httpsURLConnection.getOutputStream()));
+            bufferedWriter.write(params.toString());
+            bufferedWriter.flush();
+
+            if (httpsURLConnection.getResponseCode() == 200) {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpsURLConnection.getInputStream()));
+                String result = new String();
+                String readLine;
+                if ((readLine = bufferedReader.readLine()) != null) {
+                    result += readLine;
+                }
+                bufferedReader.close();
+                httpsURLConnection.disconnect();
+
+                Message message = handler.obtainMessage();
+                message.what = 1;
+                Bundle bundle = new Bundle();
+                HttpsResponse httpsResponse = JSON.parseObject(result, HttpsResponse.class);
+                bundle.putSerializable("result", httpsResponse);
+                message.setData(bundle);
+                handler.sendMessage(message);
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
