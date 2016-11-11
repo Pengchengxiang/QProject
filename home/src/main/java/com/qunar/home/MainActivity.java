@@ -25,4 +25,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, FlightActivity.class);
         startActivity(intent);
     }
+
+    public void toSmartUpdate(View view) {
+        Intent intent = new Intent(this, SmartUpdateActivity.class);
+        startActivity(intent);
+    }
 }
