@@ -56,6 +56,6 @@ public class SmartUpdateActivity extends AppCompatActivity {
     }
 
     static {
-        System.loadLibrary("bspatch");
+        System.loadLibrary("smartupdate");
     }
 }

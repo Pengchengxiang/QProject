@@ -1,47 +1,17 @@
-# Sets the minimum version of CMake required to build the native
-# library. You should either keep the default value or only pass a
-# value of 3.4.0 or lower.
-
+#CMake最低版本号要求
 cmake_minimum_required(VERSION 3.4.1)
 
+#项目信息
+project(smartupdate)
+
+#添加bzip2子目录
 add_subdirectory(bzip2)
 
-# Creates and names a library, sets it as either STATIC
-# or SHARED, and provides the relative paths to its source code.
-# You can define multiple libraries, and CMake builds it for you.
-# Gradle automatically packages shared libraries with your APK.
+#查找当前目录下的所有源文件，并将名称保存到DIR_SRCS变量中
+aux_source_directory(. DIR_SRCS)
+add_library(smartupdate SHARED ${DIR_SRCS})
 
-add_library( # Sets the name of the library.
-             bspatch
-
-             # Sets the library as a shared library.
-             SHARED
-
-             # Provides a relative path to your source file(s).
-             # Associated headers in the same location as their source
-             # file are automatically included.
-             bsdiff.c)
-
-# Searches for a specified prebuilt library and stores the path as a
-# variable. Because system libraries are included in the search path by
-# default, you only need to specify the name of the public NDK library
-# you want to add. CMake verifies that the library exists before
-# completing its build.
-
-find_library( # Sets the name of the path variable.
-              log-lib
-
-              # Specifies the name of the NDK library that
-              # you want CMake to locate.
-              log )
-
-# Specifies libraries CMake should link to your target library. You
-# can link multiple libraries, such as libraries you define in the
-# build script, prebuilt third-party libraries, or system libraries.
-
-target_link_libraries( # Specifies the target library.
-                       bspatch
-
-                       # Links the target library to the log library
-                       # included in the NDK.
-                       ${log-lib} )
+#添加链接库log,bzip2
+find_library(log-lib log)
+target_link_libraries(smartupdate ${log-lib})
+target_link_libraries(smartupdate bzip2)
