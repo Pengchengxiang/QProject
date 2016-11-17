@@ -32,4 +32,10 @@
         android:layout_height="wrap_content"
         android:onClick="toSmartUpdate"
         android:text="smartupdate" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="toClassLoader"
+        android:text="classLoader" />
 </LinearLayout>

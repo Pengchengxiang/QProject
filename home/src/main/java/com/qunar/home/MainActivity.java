@@ -8,6 +8,8 @@ import android.view.View;
 import com.qunar.flight.FlightActivity;
 import com.qunar.hotel.HotelActivity;
 
+import dalvik.system.DexClassLoader;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -28,6 +30,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void toSmartUpdate(View view) {
         Intent intent = new Intent(this, SmartUpdateActivity.class);
+        startActivity(intent);
+    }
+
+    public void toClassLoader(View view) {
+        Intent intent = new Intent(this, ClassLoaderActivity.class);
         startActivity(intent);
     }
 }
