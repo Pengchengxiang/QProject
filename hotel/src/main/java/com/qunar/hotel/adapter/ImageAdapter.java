@@ -36,6 +36,7 @@ public class ImageAdapter extends BaseAdapter {
         inflater = LayoutInflater.from(context);
         resource = context.getResources();
 
+        //使用ImageLoader，打开内存和磁盘缓存
         DisplayImageOptions displayImageOptions = new DisplayImageOptions.Builder().cacheInMemory(true).cacheOnDisk(true).build();
         ImageLoaderConfiguration imageLoaderConfiguration = new ImageLoaderConfiguration.Builder(context).defaultDisplayImageOptions(displayImageOptions).build();
         ImageLoader.getInstance().init(imageLoaderConfiguration);
@@ -58,8 +59,10 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        //使用ViewHolder，避免重复的findById
         ViewHolder viewHolder = null;
 
+        //复用convertView，避免布局的重复解析
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.gridview_item, parent, false);
             viewHolder = new ViewHolder();
@@ -77,6 +80,7 @@ public class ImageAdapter extends BaseAdapter {
             imageView.setImageDrawable(resource.getDrawable(R.drawable.default_img));
         }
 
+        //当GridView滑动的时候，不加载图片，避免卡顿
         if (isGridViewIdle) {
             imageView.setTag(url);
             ImageLoader.getInstance().displayImage(url, imageView);
