@@ -17,13 +17,18 @@
 
     <Button
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="toNext"
-        android:text="Https" />
+    android:layout_height="wrap_content"
+    android:onClick="toNext"
+    android:text="Https" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:onClick="toRn"
         android:text="toRN" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="toCache"
+        android:text="toCache" />
 </LinearLayout>
