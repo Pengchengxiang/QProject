@@ -24,4 +24,9 @@ public class HotelActivity extends AppCompatActivity {
         Intent intent = new Intent(this, RnActivity.class);
         startActivity(intent);
     }
+
+    public void toBitmap(View view) {
+        Intent intent = new Intent(this, BitmapActivity.class);
+        startActivity(intent);
+    }
 }

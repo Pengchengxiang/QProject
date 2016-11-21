@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.qunar.hotel">
+
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -10,7 +11,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".HotelActivity" />
-        <activity android:name=".NextActivity"></activity>
+        <activity android:name=".NextActivity" />
+        <activity android:name=".BitmapActivity"></activity>
     </application>
 
 </manifest>
