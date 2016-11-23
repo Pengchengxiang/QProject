@@ -3,7 +3,7 @@ package com.qunar.hotel.adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
+import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -13,6 +13,7 @@ import com.qunar.hotel.R;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -54,40 +55,43 @@ public class ImageAdapter extends BaseAdapter {
         ImageView imageView = (ImageView) item.findViewById(R.id.imageview1);
 
         String url = imageUrlList.get(position);
-        DownLoadBitMapThread thread = new DownLoadBitMapThread(url, imageView);
-        thread.start();
+        DownLoadBitmapTask downLoadBitmapTask = new DownLoadBitmapTask(imageView);
+        downLoadBitmapTask.execute(url);
 
         return item;
     }
 
-    /*
-     * 下载位图子线程
+    /**
+     * 下载位图异步任务，处理线程池
      */
-    private class DownLoadBitMapThread extends Thread {
-        private String url;
-        private ImageView imageView;
+    private class DownLoadBitmapTask extends AsyncTask<String, Void, Bitmap> {
+        //使用弱引用防止DownLoadBitmapTask阻止垃圾回收器回收imageView
+        private final WeakReference<ImageView> imageViewWeakReference;
 
-        public DownLoadBitMapThread(String url, ImageView imageView) {
-            Log.i(TAG, "new thread download url:" + url + ".");
-            this.url = url;
-            this.imageView = imageView;
+        private DownLoadBitmapTask(ImageView imageView) {
+            this.imageViewWeakReference = new WeakReference<>(imageView);
         }
 
         @Override
-        public void run() {
-            super.run();
+        protected Bitmap doInBackground(String... params) {
+            Bitmap bitmap = null;
             try {
-                final Bitmap bitmap = downloadBitmapFromUrl(url);
-                imageView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        imageView.setImageBitmap(bitmap);
-                    }
-                });
+                bitmap = downloadBitmapFromUrl(params[0]);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return bitmap;
+        }
 
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            //如果离开展示activity，或者配合发生改变时，imageView不一定存在，故需要检测
+            if (imageViewWeakReference != null && bitmap != null) {
+                final ImageView imageView = imageViewWeakReference.get();
+                if (imageView != null) {
+                    imageView.setImageBitmap(bitmap);
+                }
+            }
         }
     }
 
