@@ -58,22 +58,14 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View itemView;
-        //复用convertView
-        if(convertView == null){
-            Log.i(TAG,"converview == null,new convertview.");
-            itemView = inflater.inflate(R.layout.gridview_item, parent,false);
-        }else{
-            Log.i(TAG,"converview != null,reuse convertview.");
-            itemView = convertView;
-        }
+        View item = inflater.inflate(R.layout.gridview_item, null);
+        ImageView imageView = (ImageView) item.findViewById(R.id.imageview1);
 
-        ImageView imageView = (ImageView) itemView.findViewById(R.id.imageview1);
         String url = imageUrlList.get(position);
         DownLoadBitMapThread thread = new DownLoadBitMapThread(url, imageView);
         thread.start();
 
-        return itemView;
+        return item;
     }
 
 
@@ -85,6 +77,7 @@ public class ImageAdapter extends BaseAdapter {
         private ImageView imageView;
 
         public DownLoadBitMapThread(String url, ImageView imageView) {
+            Log.i(TAG, "new DownLoadBitMapThread" + url);
             this.url = url;
             this.imageView = imageView;
         }
