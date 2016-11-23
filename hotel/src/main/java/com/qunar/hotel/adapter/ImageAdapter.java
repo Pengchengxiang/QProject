@@ -3,6 +3,7 @@ package com.qunar.hotel.adapter;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -67,6 +68,7 @@ public class ImageAdapter extends BaseAdapter {
         private ImageView imageView;
 
         public DownLoadBitMapThread(String url, ImageView imageView) {
+            Log.i(TAG, "new thread download url:" + url + ".");
             this.url = url;
             this.imageView = imageView;
         }
