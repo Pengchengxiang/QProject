@@ -51,9 +51,14 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View item = View.inflate(context, R.layout.gridview_item, null);
-        ImageView imageView = (ImageView) item.findViewById(R.id.imageview1);
+        View item;
+        if(convertView == null){
+            item = View.inflate(context, R.layout.gridview_item, null);
+        }else{
+            item = convertView;
+        }
 
+        ImageView imageView = (ImageView) item.findViewById(R.id.imageview1);
         String url = imageUrlList.get(position);
         DownLoadBitmapTask downLoadBitmapTask = new DownLoadBitmapTask(imageView);
         downLoadBitmapTask.execute(url);
