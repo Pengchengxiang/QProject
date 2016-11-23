@@ -1,8 +1,11 @@
 package com.qunar.hotel.adapter;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,17 +55,21 @@ public class ImageAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View item;
-        if(convertView == null){
+        if (convertView == null) {
             item = View.inflate(context, R.layout.gridview_item, null);
-        }else{
+        } else {
             item = convertView;
         }
 
         ImageView imageView = (ImageView) item.findViewById(R.id.imageview1);
         String url = imageUrlList.get(position);
-        DownLoadBitmapTask downLoadBitmapTask = new DownLoadBitmapTask(imageView);
-        downLoadBitmapTask.execute(url);
 
+        if (cancelPotentialWork(url, imageView)) {
+            final DownLoadBitmapTask downLoadBitmapTask = new DownLoadBitmapTask(imageView);
+            final AsyncDrawable asyncDrawable = new AsyncDrawable(context.getResources(), BitmapFactory.decodeResource(context.getResources(), R.drawable.default_img), downLoadBitmapTask);
+            imageView.setImageDrawable(asyncDrawable);
+            downLoadBitmapTask.execute(url);
+        }
         return item;
     }
 
@@ -72,16 +79,17 @@ public class ImageAdapter extends BaseAdapter {
     private class DownLoadBitmapTask extends AsyncTask<String, Void, Bitmap> {
         //使用弱引用防止DownLoadBitmapTask阻止垃圾回收器回收imageView
         private final WeakReference<ImageView> imageViewWeakReference;
-
+        private Bitmap bitmap;
+        private String url;
         private DownLoadBitmapTask(ImageView imageView) {
             this.imageViewWeakReference = new WeakReference<>(imageView);
         }
 
         @Override
         protected Bitmap doInBackground(String... params) {
-            Bitmap bitmap = null;
             try {
-                bitmap = downloadBitmapFromUrl(params[0]);
+                url = params[0];
+                bitmap = downloadBitmapFromUrl(url);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -90,10 +98,15 @@ public class ImageAdapter extends BaseAdapter {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
+            if (isCancelled()) {
+                bitmap = null;
+            }
+
             //如果离开展示activity，或者配合发生改变时，imageView不一定存在，故需要检测
             if (imageViewWeakReference != null && bitmap != null) {
                 final ImageView imageView = imageViewWeakReference.get();
-                if (imageView != null) {
+                final DownLoadBitmapTask downLoadBitmapTask = getBitmapWorkerTask(imageView);
+                if (this == downLoadBitmapTask && imageView != null) {
                     imageView.setImageBitmap(bitmap);
                 }
             }
@@ -139,5 +152,52 @@ public class ImageAdapter extends BaseAdapter {
         }
 
         return bitmap;
+    }
+
+    static class AsyncDrawable extends BitmapDrawable {
+        private final WeakReference<DownLoadBitmapTask> downLoadBitmapTaskWeakReference;
+
+        public AsyncDrawable(Resources res, Bitmap bitmap, DownLoadBitmapTask downLoadBitmapTask) {
+            super(res, bitmap);
+            downLoadBitmapTaskWeakReference = new WeakReference<>(downLoadBitmapTask);
+        }
+
+        public DownLoadBitmapTask getBitmapWorkerTask() {
+            return downLoadBitmapTaskWeakReference.get();
+        }
+    }
+
+    /**
+     * 取消未执行完的异步任务
+     * @param url
+     * @param imageView
+     * @return
+     */
+    public static boolean cancelPotentialWork(String url, ImageView imageView) {
+        final DownLoadBitmapTask bitmapWorkerTask = getBitmapWorkerTask(imageView);
+        if (bitmapWorkerTask != null) {
+            final String bitmapUrl = bitmapWorkerTask.url;
+            //是相同的任务，则取消原来的任务，创建新的任务获取
+            if (bitmapUrl == null || bitmapUrl != url) {
+                bitmapWorkerTask.cancel(true);
+            }
+            //如果加载的是同一个图片，则继续异步获取，不创建新的任务下载
+            else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static DownLoadBitmapTask getBitmapWorkerTask(ImageView imageView) {
+        if (imageView != null) {
+            final Drawable drawable = imageView.getDrawable();
+            if (drawable instanceof AsyncDrawable) {
+                final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
+                return asyncDrawable.getBitmapWorkerTask();
+            }
+        }
+
+        return null;
     }
 }
