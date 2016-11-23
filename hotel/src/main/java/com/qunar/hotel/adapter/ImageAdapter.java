@@ -6,12 +6,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.sip.SipSession;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import com.qunar.hotel.ListActivity;
 import com.qunar.hotel.R;
 
 import java.io.IOException;
@@ -30,7 +33,14 @@ import java.util.List;
 public class ImageAdapter extends BaseAdapter {
     private static final String TAG = "ImageAdapter";
     private final Context context;
+    //展示图片url集合
     private List<String> imageUrlList;
+    //列表是否静止
+    private boolean isGridViewIdeal;
+
+    public void setGridViewIdeal(boolean gridViewIdeal) {
+        isGridViewIdeal = gridViewIdeal;
+    }
 
     public ImageAdapter(Context context, ArrayList<String> imageUrlList) {
         this.context = context;
@@ -76,7 +86,13 @@ public class ImageAdapter extends BaseAdapter {
             final AsyncDrawable asyncDrawable = new AsyncDrawable(context.getResources(), BitmapFactory.
                     decodeResource(context.getResources(), R.drawable.default_img), downLoadBitmapTask);
             imageView.setImageDrawable(asyncDrawable);
-            downLoadBitmapTask.execute(url);
+            Log.i("test","isGridViewIdeal = " + isGridViewIdeal);
+            //只有列表是静止的情况下，才执行这个任务
+            if (isGridViewIdeal) {
+                Log.i("test","downLoadBitmapTask execute:" + url);
+                downLoadBitmapTask.execute(url);
+            }
+
         }
         return viewItem;
     }
@@ -98,6 +114,10 @@ public class ImageAdapter extends BaseAdapter {
             }
             //如果加载的是同一个图片，则继续异步获取，不创建新的任务下载
             else {
+                //如果由于正在列表正在滑动，复用视图的异步任务没有正在执行，则执行它
+                if(bitmapWorkerTask.getStatus() == AsyncTask.Status.PENDING){
+                    bitmapWorkerTask.execute(bitmapUrl);
+                }
                 return false;
             }
         }

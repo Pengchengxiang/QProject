@@ -2,6 +2,8 @@ package com.qunar.hotel;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.widget.AbsListView;
 import android.widget.GridView;
 
 import com.qunar.hotel.adapter.ImageAdapter;
@@ -9,7 +11,8 @@ import com.qunar.hotel.adapter.ImageAdapter;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class ListActivity extends AppCompatActivity{
+public class ListActivity extends AppCompatActivity implements AbsListView.OnScrollListener {
+    private static final String TAG = "ListActivity";
     private GridView gridView;
     private ImageAdapter imageAdapter;
 
@@ -26,6 +29,24 @@ public class ListActivity extends AppCompatActivity{
 
         }
         imageAdapter = new ImageAdapter(this, imageUrlList);
+        gridView.setOnScrollListener(this);
         gridView.setAdapter(imageAdapter);
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+        if (scrollState == SCROLL_STATE_IDLE) {
+            Log.i("test", "SCROLL_STATE_IDLE");
+            imageAdapter.setGridViewIdeal(true);
+            imageAdapter.notifyDataSetChanged();
+        } else {
+            Log.i("test", "NOT SCROLL_STATE_IDLE");
+            imageAdapter.setGridViewIdeal(false);
+        }
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+
     }
 }
