@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,23 +55,33 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View item;
+        View viewItem;
+        ViewHolder viewHolder;
+
         if (convertView == null) {
-            item = View.inflate(context, R.layout.gridview_item, null);
+            viewItem = View.inflate(context, R.layout.gridview_item, null);
+            viewHolder = new ViewHolder();
+            viewHolder.imageView = (ImageView) viewItem.findViewById(R.id.imageview1);
+            viewItem.setTag(viewHolder);
         } else {
-            item = convertView;
+            viewItem = convertView;
+            viewHolder = (ViewHolder) viewItem.getTag();
+
         }
 
-        ImageView imageView = (ImageView) item.findViewById(R.id.imageview1);
         String url = imageUrlList.get(position);
-
+        ImageView imageView = viewHolder.imageView;
         if (cancelPotentialWork(url, imageView)) {
             final DownLoadBitmapTask downLoadBitmapTask = new DownLoadBitmapTask(imageView);
             final AsyncDrawable asyncDrawable = new AsyncDrawable(context.getResources(), BitmapFactory.decodeResource(context.getResources(), R.drawable.default_img), downLoadBitmapTask);
             imageView.setImageDrawable(asyncDrawable);
             downLoadBitmapTask.execute(url);
         }
-        return item;
+        return viewItem;
+    }
+
+    static class ViewHolder{
+        ImageView imageView;
     }
 
     /**
