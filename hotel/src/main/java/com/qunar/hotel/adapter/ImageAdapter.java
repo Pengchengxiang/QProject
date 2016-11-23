@@ -1,11 +1,8 @@
 package com.qunar.hotel.adapter;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -27,16 +24,12 @@ import java.util.List;
  */
 public class ImageAdapter extends BaseAdapter {
     private static final String TAG = "ImageAdapter";
-
-    private LayoutInflater inflater;
-    private Resources resource;
-
+    private final Context context;
     private List<String> imageUrlList;
 
     public ImageAdapter(Context context, ArrayList<String> imageUrlList) {
+        this.context = context;
         this.imageUrlList = imageUrlList;
-        inflater = LayoutInflater.from(context);
-        resource = context.getResources();
     }
 
     @Override
@@ -56,7 +49,7 @@ public class ImageAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        View item = inflater.inflate(R.layout.gridview_item, null);
+        View item = View.inflate(context, R.layout.gridview_item, null);
         ImageView imageView = (ImageView) item.findViewById(R.id.imageview1);
 
         String url = imageUrlList.get(position);
@@ -66,8 +59,7 @@ public class ImageAdapter extends BaseAdapter {
         return item;
     }
 
-
-    /**
+    /*
      * 下载位图子线程
      */
     private class DownLoadBitMapThread extends Thread {
