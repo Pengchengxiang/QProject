@@ -23,7 +23,7 @@ public class CacheActivity extends AppCompatActivity{
         ArrayList<String> imageUrlList = new ArrayList<>();
         Random random = new Random();
         for (int i = 0; i < 40; i++) {
-            imageUrlList.add("http://192.168.1.105:8080/qserver/img/" + random.nextInt(16) % 6 + ".jpg");
+            imageUrlList.add("http://192.168.110.236:8080/qserver/img/" + random.nextInt(16) % 6 + ".jpg");
 
         }
         imageAdapter = new ImageAdapter(this, imageUrlList);

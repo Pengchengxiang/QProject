@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,7 +17,6 @@ import com.qunar.hotel.R;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -37,7 +37,6 @@ public class ImageAdapter extends BaseAdapter {
 
     public ImageAdapter(Context context, ArrayList<String> imageUrlList) {
         this.imageUrlList = imageUrlList;
-        Log.i(TAG, "imageUrlList size =" + imageUrlList.size());
         inflater = LayoutInflater.from(context);
         resource = context.getResources();
     }
@@ -63,82 +62,82 @@ public class ImageAdapter extends BaseAdapter {
         ImageView imageView = (ImageView) item.findViewById(R.id.imageview1);
 
         String url = imageUrlList.get(position);
-        DownLoadBitmapTask task = new DownLoadBitmapTask(imageView);
-        task.execute(url);
+        DownLoadBitMapThread thread = new DownLoadBitMapThread(url, imageView);
+        thread.start();
 
         return item;
     }
 
+
     /**
-     * 异步下载位图任务类
+     * 下载位图子线程
      */
-    private class DownLoadBitmapTask extends AsyncTask<String, Void, Bitmap> {
+    private class DownLoadBitMapThread extends Thread {
+        private String url;
         private ImageView imageView;
 
-        public DownLoadBitmapTask(ImageView imageView) {
+        public DownLoadBitMapThread(String url, ImageView imageView) {
+            Log.i(TAG, "new DownLoadBitMapThread" + url);
+            this.url = url;
             this.imageView = imageView;
         }
 
         @Override
-        protected void onPreExecute() {
-            imageView.setImageResource(R.drawable.default_img);
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... urls) {
-            Bitmap bitmap = null;
+        public void run() {
+            super.run();
             try {
-                bitmap = downloadBitmapFromUrl(urls[0]);
+                final Bitmap bitmap = downloadBitmapFromUrl(url);
+                imageView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageView.setImageBitmap(bitmap);
+                    }
+                });
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return bitmap;
+
         }
+    }
 
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            imageView.setImageBitmap(bitmap);
-        }
+    /**
+     * 从指定url下载位图对象
+     *
+     * @param url 位图的url
+     * @return 位图对象
+     * @throws IOException
+     */
+    private Bitmap downloadBitmapFromUrl(String url) throws IOException {
+        Bitmap bitmap = null;
+        InputStream is = null;
 
-        /**
-         * 从指定url下载位图对象
-         *
-         * @param url 位图的url
-         * @return 位图对象
-         * @throws IOException
-         */
-        private Bitmap downloadBitmapFromUrl(String url) throws IOException {
-            Bitmap bitmap = null;
-            InputStream is = null;
+        try {
+            URL url1 = new URL(url);
+            HttpURLConnection conn = (HttpURLConnection) url1.openConnection();
 
-            try {
-                URL url1 = new URL(url);
-                HttpURLConnection conn = (HttpURLConnection) url1.openConnection();
+            conn.setReadTimeout(1000);
+            conn.setConnectTimeout(15000);
+            conn.setRequestMethod("GET");
+            conn.setDoInput(true);
+            conn.connect();
 
-                conn.setReadTimeout(1000);
-                conn.setConnectTimeout(15000);
-                conn.setRequestMethod("GET");
-                conn.setDoInput(true);
-                conn.connect();
-
-                int response = conn.getResponseCode();
-                if(response == 200){
-                    is = conn.getInputStream();
-                    bitmap = BitmapFactory.decodeStream(is);
-                }
-            } catch (ProtocolException e) {
-                e.printStackTrace();
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (is != null) {
-                    is.close();
-                }
+            int response = conn.getResponseCode();
+            if (response == 200) {
+                is = conn.getInputStream();
+                bitmap = BitmapFactory.decodeStream(is);
             }
-
-            return bitmap;
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (is != null) {
+                is.close();
+            }
         }
+
+        return bitmap;
     }
 }
