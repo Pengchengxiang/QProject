@@ -36,7 +36,7 @@ public class ImageAdapter extends BaseAdapter {
     //展示图片url集合
     private List<String> imageUrlList;
     //列表是否静止
-    private boolean isGridViewIdeal;
+    private boolean isGridViewIdeal = true;
 
     public void setGridViewIdeal(boolean gridViewIdeal) {
         isGridViewIdeal = gridViewIdeal;
