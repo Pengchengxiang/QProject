@@ -7,6 +7,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.util.Log;
+import android.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -31,10 +33,21 @@ public class ImageAdapter extends BaseAdapter {
     private static final String TAG = "ImageAdapter";
     private final Context context;
     private List<String> imageUrlList;
+    private LruCache<String, Bitmap> memoryCache;
 
     public ImageAdapter(Context context, ArrayList<String> imageUrlList) {
         this.context = context;
         this.imageUrlList = imageUrlList;
+
+        final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+        final int cacheSize = maxMemory / 8;
+        memoryCache = new LruCache<String, Bitmap>(cacheSize) {
+            @Override
+            protected int sizeOf(String key, Bitmap bitmap) {
+                return bitmap.getByteCount() / 1024;
+            }
+        };
+
     }
 
     @Override
@@ -70,14 +83,23 @@ public class ImageAdapter extends BaseAdapter {
 
         String url = imageUrlList.get(position);
         ImageView imageView = viewHolder.imageView;
-        //检查ImageView是否有异步任务获取图片，如果有且为同一场则继续异步任务请求，如果有不为同一张则取消前面的任务，新建任务获取新的图片
-        if (cancelPotentialAsyncTask(url, imageView)) {
-            final DownLoadBitmapTask downLoadBitmapTask = new DownLoadBitmapTask(imageView);
-            final AsyncDrawable asyncDrawable = new AsyncDrawable(context.getResources(), BitmapFactory.
-                    decodeResource(context.getResources(), R.drawable.default_img), downLoadBitmapTask);
-            imageView.setImageDrawable(asyncDrawable);
-            downLoadBitmapTask.execute(url);
+
+        //先从内存缓存中获取，没有再从网络请求
+        final Bitmap bitmap = getBitmapFromMemCache(url);
+        if (bitmap != null) {
+            Log.i(TAG, "get bitmap from memory cache:" + url);
+            imageView.setImageBitmap(bitmap);
+        } else {
+            //检查ImageView是否有异步任务获取图片，如果有且为同一场则继续异步任务请求，如果有不为同一张则取消前面的任务，新建任务获取新的图片
+            if (cancelPotentialAsyncTask(url, imageView)) {
+                final DownLoadBitmapTask downLoadBitmapTask = new DownLoadBitmapTask(imageView);
+                final AsyncDrawable asyncDrawable = new AsyncDrawable(context.getResources(), BitmapFactory.
+                        decodeResource(context.getResources(), R.drawable.default_img), downLoadBitmapTask);
+                imageView.setImageDrawable(asyncDrawable);
+                downLoadBitmapTask.execute(url);
+            }
         }
+
         return viewItem;
     }
 
@@ -102,6 +124,28 @@ public class ImageAdapter extends BaseAdapter {
             }
         }
         return true;
+    }
+
+    /**
+     * 将位图添加到内存缓存中
+     *
+     * @param key    缓存key
+     * @param bitmap 缓存bitmap
+     */
+    public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+        if (getBitmapFromMemCache(key) == null) {
+            memoryCache.put(key, bitmap);
+        }
+    }
+
+    /**
+     * 从内存缓存中获取位图
+     *
+     * @param key 缓存key
+     * @return 缓存的Bitmap
+     */
+    public Bitmap getBitmapFromMemCache(String key) {
+        return memoryCache.get(key);
     }
 
     /**
@@ -146,7 +190,11 @@ public class ImageAdapter extends BaseAdapter {
         protected Bitmap doInBackground(String... params) {
             try {
                 url = params[0];
+                Log.i(TAG, "start request bitmap:" + url);
                 bitmap = downloadBitmapFromUrl(url);
+                //获取位图后，添加到内存缓存中
+                Log.i(TAG, "add bitmap to memory cache:" + url);
+                addBitmapToMemoryCache(url, bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
