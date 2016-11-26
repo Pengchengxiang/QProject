@@ -26,7 +26,7 @@ public class HotelActivity extends AppCompatActivity {
     }
 
     public void toList(View view) {
-        Intent intent = new Intent(this, ListActivity.class);
+        Intent intent = new Intent(this, CacheActivity.class);
         startActivity(intent);
     }
 

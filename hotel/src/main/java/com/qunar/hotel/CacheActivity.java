@@ -1,9 +1,7 @@
 package com.qunar.hotel;
 
-import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.LruCache;
 import android.widget.GridView;
 
 import com.qunar.hotel.adapter.ImageAdapter;
@@ -11,14 +9,14 @@ import com.qunar.hotel.adapter.ImageAdapter;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class ListActivity extends AppCompatActivity{
+public class CacheActivity extends AppCompatActivity{
     private GridView gridView;
     private ImageAdapter imageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
+        setContentView(R.layout.activity_cache);
 
         gridView = (GridView) findViewById(R.id.gridview1);
         ArrayList<String> imageUrlList = new ArrayList<>();

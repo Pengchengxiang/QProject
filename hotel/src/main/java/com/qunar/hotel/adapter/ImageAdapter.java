@@ -56,6 +56,7 @@ public class ImageAdapter extends BaseAdapter {
         this.context = context;
         this.imageUrlList = imageUrlList;
 
+        //初始化内存缓存，指定内存缓存大小，并实现sizeof方法计算每个缓存实体的大小
         final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         final int cacheSize = maxMemory / 8;
         memoryCache = new LruCache<String, Bitmap>(cacheSize) {
@@ -65,6 +66,7 @@ public class ImageAdapter extends BaseAdapter {
             }
         };
 
+        //初始化硬盘缓存
         File cacheDir = getDiskCacheDir(context, DISK_CACHE_SUBDIR);
         new InitDiskCacheTask().execute(cacheDir);
     }
@@ -249,6 +251,26 @@ public class ImageAdapter extends BaseAdapter {
     }
 
     /**
+     * 初始化硬盘缓存任务
+     */
+    class InitDiskCacheTask extends AsyncTask<File, Void, Void> {
+        @Override
+        protected Void doInBackground(File... params) {
+            synchronized (diskCacheLock) {
+                try {
+                    File cacheDir = params[0];
+                    diskLruCache = DiskLruCache.open(cacheDir, 1, 1, DISK_CACHE_SIZE);
+                    diskCacheStarting = false;
+                    diskCacheLock.notifyAll();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+    }
+
+    /**
      * 下载位图异步任务，处理线程池
      */
     private class DownLoadBitmapTask extends AsyncTask<String, Void, Bitmap> {
@@ -355,22 +377,6 @@ public class ImageAdapter extends BaseAdapter {
         }
     }
 
-    class InitDiskCacheTask extends AsyncTask<File, Void, Void> {
-        @Override
-        protected Void doInBackground(File... params) {
-            synchronized (diskCacheLock) {
-                try {
-                    File cacheDir = params[0];
-                    diskLruCache = DiskLruCache.open(cacheDir, 1, 1, DISK_CACHE_SIZE);
-                    diskCacheStarting = false;
-                    diskCacheLock.notifyAll();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-    }
 
     public static File getDiskCacheDir(Context context, String uniqueName) {
         final String cachePath =

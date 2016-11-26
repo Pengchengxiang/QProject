@@ -14,7 +14,7 @@
         android:theme="@style/AppTheme">
         <activity android:name=".HotelActivity" />
         <activity android:name=".NextActivity"></activity>
-        <activity android:name=".ListActivity"></activity>
+        <activity android:name=".CacheActivity"></activity>
         <activity android:name=".BitmapActivity"></activity>
     </application>
 
