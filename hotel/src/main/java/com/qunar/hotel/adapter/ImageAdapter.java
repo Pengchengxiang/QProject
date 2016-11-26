@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.View;
@@ -15,16 +16,25 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import com.qunar.hotel.R;
+import com.qunar.hotel.cache.DiskLruCache;
 
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.os.Environment.isExternalStorageRemovable;
 
 /**
  * Created by chengxiang.peng on 2016/11/20.
@@ -33,7 +43,14 @@ public class ImageAdapter extends BaseAdapter {
     private static final String TAG = "ImageAdapter";
     private final Context context;
     private List<String> imageUrlList;
+
     private LruCache<String, Bitmap> memoryCache;
+
+    private DiskLruCache diskLruCache;
+    private final Object diskCacheLock = new Object();
+    private boolean diskCacheStarting = true;
+    private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10;
+    private static final String DISK_CACHE_SUBDIR = "thumbnails";
 
     public ImageAdapter(Context context, ArrayList<String> imageUrlList) {
         this.context = context;
@@ -48,6 +65,8 @@ public class ImageAdapter extends BaseAdapter {
             }
         };
 
+        File cacheDir = getDiskCacheDir(context, DISK_CACHE_SUBDIR);
+        new InitDiskCacheTask().execute(cacheDir);
     }
 
     @Override
@@ -126,26 +145,82 @@ public class ImageAdapter extends BaseAdapter {
         return true;
     }
 
-    /**
-     * 将位图添加到内存缓存中
-     *
-     * @param key    缓存key
-     * @param bitmap 缓存bitmap
-     */
-    public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
-        if (getBitmapFromMemCache(key) == null) {
-            memoryCache.put(key, bitmap);
+    public void addBitmapToCache(String url, Bitmap bitmap) {
+        if (getBitmapFromMemCache(url) == null) {
+            memoryCache.put(url, bitmap);
+        }
+
+        synchronized (diskCacheLock) {
+            if (diskLruCache != null) {
+                final String key = hashKeyForDisk(url);
+                OutputStream outputStream = null;
+                try {
+                    DiskLruCache.Snapshot snapshot = diskLruCache.get(key);
+                    if (snapshot == null) {
+                        DiskLruCache.Editor editor = diskLruCache.edit(key);
+                        if (editor != null) {
+                            outputStream = editor.newOutputStream(0);
+                            bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream);
+                            editor.commit();
+                        }
+                    } else {
+                        snapshot.getInputStream(0).close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (outputStream != null) {
+                            outputStream.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         }
     }
 
-    /**
-     * 从内存缓存中获取位图
-     *
-     * @param key 缓存key
-     * @return 缓存的Bitmap
-     */
-    public Bitmap getBitmapFromMemCache(String key) {
-        return memoryCache.get(key);
+    public Bitmap getBitmapFromMemCache(String url) {
+        return memoryCache.get(url);
+    }
+
+    public Bitmap getBitmapFromDiskCache(String url) {
+        synchronized (diskCacheLock) {
+            while (diskCacheStarting) {
+                try {
+                    diskCacheLock.wait();
+                } catch (InterruptedException e) {
+                }
+            }
+
+            Bitmap bitmap = null;
+            if (diskLruCache != null) {
+                InputStream inputStream = null;
+                final String key = hashKeyForDisk(url);
+                try {
+                    DiskLruCache.Snapshot snapshot = diskLruCache.get(key);
+                    if (snapshot != null) {
+                        inputStream = snapshot.getInputStream(0);
+                        if (inputStream != null) {
+                            FileDescriptor fileDescriptor = ((FileInputStream) inputStream).getFD();
+                            bitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            return bitmap;
+        }
     }
 
     /**
@@ -190,11 +265,15 @@ public class ImageAdapter extends BaseAdapter {
         protected Bitmap doInBackground(String... params) {
             try {
                 url = params[0];
-                Log.i(TAG, "start request bitmap:" + url);
-                bitmap = downloadBitmapFromUrl(url);
-                //获取位图后，添加到内存缓存中
-                Log.i(TAG, "add bitmap to memory cache:" + url);
-                addBitmapToMemoryCache(url, bitmap);
+                bitmap = getBitmapFromDiskCache(url);
+                if (bitmap == null) {
+                    bitmap = downloadBitmapFromUrl(url);
+                    Log.i(TAG, "get bitmap from url:" + url);
+                }else{
+                    Log.i(TAG, "get bitmap from disk cache:" + url);
+                }
+                //获取位图后，添加内存和硬盘缓存中
+                addBitmapToCache(url, bitmap);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -274,5 +353,55 @@ public class ImageAdapter extends BaseAdapter {
         public DownLoadBitmapTask getBitmapWorkerTask() {
             return downLoadBitmapTaskWeakReference.get();
         }
+    }
+
+    class InitDiskCacheTask extends AsyncTask<File, Void, Void> {
+        @Override
+        protected Void doInBackground(File... params) {
+            synchronized (diskCacheLock) {
+                try {
+                    File cacheDir = params[0];
+                    diskLruCache = DiskLruCache.open(cacheDir, 1, 1, DISK_CACHE_SIZE);
+                    diskCacheStarting = false;
+                    diskCacheLock.notifyAll();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
+    }
+
+    public static File getDiskCacheDir(Context context, String uniqueName) {
+        final String cachePath =
+                Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+                        !isExternalStorageRemovable() ? context.getExternalCacheDir().getPath() :
+                        context.getCacheDir().getPath();
+
+        return new File(cachePath + File.separator + uniqueName);
+    }
+
+    public static String hashKeyForDisk(String key) {
+        String cacheKey;
+        try {
+            final MessageDigest mDigest = MessageDigest.getInstance("MD5");
+            mDigest.update(key.getBytes());
+            cacheKey = bytesToHexString(mDigest.digest());
+        } catch (NoSuchAlgorithmException e) {
+            cacheKey = String.valueOf(key.hashCode());
+        }
+        return cacheKey;
+    }
+
+    private static String bytesToHexString(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(0xFF & bytes[i]);
+            if (hex.length() == 1) {
+                sb.append('0');
+            }
+            sb.append(hex);
+        }
+        return sb.toString();
     }
 }
