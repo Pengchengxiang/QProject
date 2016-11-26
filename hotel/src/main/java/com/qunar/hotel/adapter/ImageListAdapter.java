@@ -37,22 +37,30 @@ import java.util.List;
 import static android.os.Environment.isExternalStorageRemovable;
 
 /**
+ * 图片列表适配器
  * Created by chengxiang.peng on 2016/11/20.
  */
-public class ImageAdapter extends BaseAdapter {
-    private static final String TAG = "ImageAdapter";
+public class ImageListAdapter extends BaseAdapter {
+    private static final String TAG = "ImageListAdapter";
     private final Context context;
+    //显示图片url集合
     private List<String> imageUrlList;
 
+    //内存缓存
     private LruCache<String, Bitmap> memoryCache;
 
+    //硬盘缓存
     private DiskLruCache diskLruCache;
+    //硬盘缓存锁，应为硬盘缓存涉及到文件的操作，用来控制线程安全
     private final Object diskCacheLock = new Object();
+    //硬盘缓存是否正在初始化，未初始化完成，其它缓存Task必须等待
     private boolean diskCacheStarting = true;
+    //硬盘缓存大小
     private static final int DISK_CACHE_SIZE = 1024 * 1024 * 10;
+    //硬盘缓存目录名称
     private static final String DISK_CACHE_SUBDIR = "thumbnails";
 
-    public ImageAdapter(Context context, ArrayList<String> imageUrlList) {
+    public ImageListAdapter(Context context, ArrayList<String> imageUrlList) {
         this.context = context;
         this.imageUrlList = imageUrlList;
 
@@ -66,9 +74,42 @@ public class ImageAdapter extends BaseAdapter {
             }
         };
 
-        //初始化硬盘缓存
+        //异步任务初始化硬盘缓存
         File cacheDir = getDiskCacheDir(context, DISK_CACHE_SUBDIR);
         new InitDiskCacheTask().execute(cacheDir);
+    }
+
+    /**
+     * 获取硬盘缓存目录，优先使用SD卡或者内置外存
+     */
+    public static File getDiskCacheDir(Context context, String uniqueName) {
+        final String cachePath =
+                Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+                        !isExternalStorageRemovable() ? context.getExternalCacheDir().getPath() :
+                        context.getCacheDir().getPath();
+
+        return new File(cachePath + File.separator + uniqueName);
+    }
+
+    /**
+     * 初始化硬盘缓存异步任务
+     */
+    class InitDiskCacheTask extends AsyncTask<File, Void, Void> {
+        @Override
+        protected Void doInBackground(File... params) {
+            synchronized (diskCacheLock) {
+                try {
+                    //调用open()方法，指定缓存目录，初始化硬盘缓存。完毕后释放锁让其它线程执行
+                    File cacheDir = params[0];
+                    diskLruCache = DiskLruCache.open(cacheDir, 1, 1, DISK_CACHE_SIZE);
+                    diskCacheStarting = false;
+                    diskCacheLock.notifyAll();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return null;
+        }
     }
 
     @Override
@@ -91,7 +132,6 @@ public class ImageAdapter extends BaseAdapter {
         View viewItem;
         ViewHolder viewHolder;
 
-        //如果convertView可以复用，则复用避免inflate()解析布局
         if (convertView == null) {
             viewItem = View.inflate(context, R.layout.gridview_item, null);
             viewHolder = new ViewHolder();
@@ -105,14 +145,14 @@ public class ImageAdapter extends BaseAdapter {
         String url = imageUrlList.get(position);
         ImageView imageView = viewHolder.imageView;
 
-        //先从内存缓存中获取，没有再从网络请求
+        //先从内存缓存中获取，没有执行异步任务从硬盘缓存或者网络获取
         final Bitmap bitmap = getBitmapFromMemCache(url);
         if (bitmap != null) {
-            Log.i(TAG, "get bitmap from memory cache:" + url);
             imageView.setImageBitmap(bitmap);
         } else {
-            //检查ImageView是否有异步任务获取图片，如果有且为同一场则继续异步任务请求，如果有不为同一张则取消前面的任务，新建任务获取新的图片
+            //检查复用的imageView当前是否相关的异步任务正在获取图片，如果获取的不是同一张则取消
             if (cancelPotentialAsyncTask(url, imageView)) {
+                //创建并执行异步任务，并将任务关联到默认图的Drawble，设置给imageView
                 final DownLoadBitmapTask downLoadBitmapTask = new DownLoadBitmapTask(imageView);
                 final AsyncDrawable asyncDrawable = new AsyncDrawable(context.getResources(), BitmapFactory.
                         decodeResource(context.getResources(), R.drawable.default_img), downLoadBitmapTask);
@@ -120,22 +160,25 @@ public class ImageAdapter extends BaseAdapter {
                 downLoadBitmapTask.execute(url);
             }
         }
-
         return viewItem;
     }
 
+    static class ViewHolder {
+        ImageView imageView;
+    }
+
     /**
-     * 取消指定ImageView已存在的异步获取图片任务，如果有且为同一场则继续异步任务请求，如果有不为同一张则取消前面的任务，新建任务获取新的图片
+     * 检查复用的imageView当前是否相关的异步任务正在获取图片，如果获取的不是同一张则取消，创建新的task获取你想要的图片；如果是同一张，则继续执行任务获取
      *
      * @param url       当前获取图片url
      * @param imageView 当前使用imageView
-     * @return
+     * @return 是否取消了重复任务
      */
     public static boolean cancelPotentialAsyncTask(String url, ImageView imageView) {
         final DownLoadBitmapTask bitmapWorkerTask = getBitmapTaskByImageView(imageView);
         if (bitmapWorkerTask != null) {
             final String bitmapUrl = bitmapWorkerTask.url;
-            //是相同的任务，则取消原来的任务，创建新的任务获取
+            //不是同一张图片，则取消原来的任务，创建新的任务获取
             if (bitmapUrl == null || bitmapUrl != url) {
                 bitmapWorkerTask.cancel(true);
             }
@@ -147,17 +190,105 @@ public class ImageAdapter extends BaseAdapter {
         return true;
     }
 
+    /**
+     * 获取imageview当前对应的异步下载任务
+     *
+     * @param imageView image对象
+     * @return 关联的异步任务
+     */
+    private static DownLoadBitmapTask getBitmapTaskByImageView(ImageView imageView) {
+        if (imageView != null) {
+            final Drawable drawable = imageView.getDrawable();
+            if (drawable instanceof AsyncDrawable) {
+                final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
+                return asyncDrawable.getBitmapWorkerTask();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 异步Drawable，关联下载该图片的异步任务
+     */
+    static class AsyncDrawable extends BitmapDrawable {
+        //下载位图对应的异步任务
+        private final WeakReference<DownLoadBitmapTask> downLoadBitmapTaskWeakReference;
+
+        public AsyncDrawable(Resources res, Bitmap bitmap, DownLoadBitmapTask downLoadBitmapTask) {
+            super(res, bitmap);
+            downLoadBitmapTaskWeakReference = new WeakReference<>(downLoadBitmapTask);
+        }
+
+        public DownLoadBitmapTask getBitmapWorkerTask() {
+            return downLoadBitmapTaskWeakReference.get();
+        }
+    }
+
+    /**
+     * 下载位图异步任务
+     */
+    private class DownLoadBitmapTask extends AsyncTask<String, Void, Bitmap> {
+        private final WeakReference<ImageView> imageViewWeakReference;
+        private Bitmap bitmap;
+        private String url;
+
+        private DownLoadBitmapTask(ImageView imageView) {
+            this.imageViewWeakReference = new WeakReference<>(imageView);
+        }
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            try {
+                //先从硬盘缓存获取，否则从服务器获取，成功后添加到内存和硬盘缓存
+                url = params[0];
+                bitmap = getBitmapFromDiskCache(url);
+                if (bitmap == null) {
+                    bitmap = downloadBitmapFromUrl(url);
+                }
+                addBitmapToCache(url, bitmap);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return bitmap;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            if (isCancelled()) {
+                bitmap = null;
+            }
+
+            //如果activity退出，或者配合发生改变重建时，imageView不一定存在，故需要检测
+            if (imageViewWeakReference != null && bitmap != null) {
+                final ImageView imageView = imageViewWeakReference.get();
+                final DownLoadBitmapTask downLoadBitmapTask = getBitmapTaskByImageView(imageView);
+                if (this == downLoadBitmapTask && imageView != null) {
+                    imageView.setImageBitmap(bitmap);
+                }
+            }
+        }
+    }
+
+    /**
+     * 向内存缓存和硬盘缓存缓存位图
+     *
+     * @param url    url
+     * @param bitmap 位图
+     */
     public void addBitmapToCache(String url, Bitmap bitmap) {
+        //保存到内存缓存
         if (getBitmapFromMemCache(url) == null) {
             memoryCache.put(url, bitmap);
         }
 
+        //保存到硬盘缓存
         synchronized (diskCacheLock) {
             if (diskLruCache != null) {
                 final String key = hashKeyForDisk(url);
                 OutputStream outputStream = null;
                 try {
                     DiskLruCache.Snapshot snapshot = diskLruCache.get(key);
+                    //不存在则获取Editor获取输出流，写入缓存
                     if (snapshot == null) {
                         DiskLruCache.Editor editor = diskLruCache.edit(key);
                         if (editor != null) {
@@ -183,12 +314,25 @@ public class ImageAdapter extends BaseAdapter {
         }
     }
 
+    /**
+     * 从内存缓存中获取指定url的图片
+     *
+     * @param url url
+     * @return 位图
+     */
     public Bitmap getBitmapFromMemCache(String url) {
         return memoryCache.get(url);
     }
 
+    /**
+     * 从磁盘缓存中获取url的位图
+     *
+     * @param url url
+     * @return 位图
+     */
     public Bitmap getBitmapFromDiskCache(String url) {
         synchronized (diskCacheLock) {
+            //如果磁盘缓存正在初始化，则等待初始化完成
             while (diskCacheStarting) {
                 try {
                     diskCacheLock.wait();
@@ -199,8 +343,10 @@ public class ImageAdapter extends BaseAdapter {
             Bitmap bitmap = null;
             if (diskLruCache != null) {
                 InputStream inputStream = null;
+                //将图片的url生成md5哈希值作为硬盘缓存的key
                 final String key = hashKeyForDisk(url);
                 try {
+                    //通过Snapshot获取输出流，读取key对应的缓存文件
                     DiskLruCache.Snapshot snapshot = diskLruCache.get(key);
                     if (snapshot != null) {
                         inputStream = snapshot.getInputStream(0);
@@ -226,104 +372,10 @@ public class ImageAdapter extends BaseAdapter {
     }
 
     /**
-     * 获取指定Imageview当前的异步下载任务
+     * 从服务端下载位图
      *
-     * @param imageView
-     * @return
-     */
-    private static DownLoadBitmapTask getBitmapTaskByImageView(ImageView imageView) {
-        if (imageView != null) {
-            final Drawable drawable = imageView.getDrawable();
-            if (drawable instanceof AsyncDrawable) {
-                final AsyncDrawable asyncDrawable = (AsyncDrawable) drawable;
-                return asyncDrawable.getBitmapWorkerTask();
-            }
-        }
-        return null;
-    }
-
-
-    /**
-     * ViewHolder类，保存视图引用，避免复用视图后重复的findViewById()操作
-     */
-    static class ViewHolder {
-        ImageView imageView;
-    }
-
-    /**
-     * 初始化硬盘缓存任务
-     */
-    class InitDiskCacheTask extends AsyncTask<File, Void, Void> {
-        @Override
-        protected Void doInBackground(File... params) {
-            synchronized (diskCacheLock) {
-                try {
-                    File cacheDir = params[0];
-                    diskLruCache = DiskLruCache.open(cacheDir, 1, 1, DISK_CACHE_SIZE);
-                    diskCacheStarting = false;
-                    diskCacheLock.notifyAll();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            return null;
-        }
-    }
-
-    /**
-     * 下载位图异步任务，处理线程池
-     */
-    private class DownLoadBitmapTask extends AsyncTask<String, Void, Bitmap> {
-        //使用弱引用防止DownLoadBitmapTask阻止垃圾回收器回收imageView
-        private final WeakReference<ImageView> imageViewWeakReference;
-        private Bitmap bitmap;
-        private String url;
-
-        private DownLoadBitmapTask(ImageView imageView) {
-            this.imageViewWeakReference = new WeakReference<>(imageView);
-        }
-
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            try {
-                url = params[0];
-                bitmap = getBitmapFromDiskCache(url);
-                if (bitmap == null) {
-                    bitmap = downloadBitmapFromUrl(url);
-                    Log.i(TAG, "get bitmap from url:" + url);
-                }else{
-                    Log.i(TAG, "get bitmap from disk cache:" + url);
-                }
-                //获取位图后，添加内存和硬盘缓存中
-                addBitmapToCache(url, bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return bitmap;
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if (isCancelled()) {
-                bitmap = null;
-            }
-
-            //如果离开展示activity，或者配合发生改变时，imageView不一定存在，故需要检测
-            if (imageViewWeakReference != null && bitmap != null) {
-                final ImageView imageView = imageViewWeakReference.get();
-                final DownLoadBitmapTask downLoadBitmapTask = getBitmapTaskByImageView(imageView);
-                if (this == downLoadBitmapTask && imageView != null) {
-                    imageView.setImageBitmap(bitmap);
-                }
-            }
-        }
-    }
-
-    /**
-     * 从指定url下载位图对象
-     *
-     * @param url 位图的url
-     * @return 位图对象
+     * @param url url
+     * @return 位图
      * @throws IOException
      */
     private Bitmap downloadBitmapFromUrl(String url) throws IOException {
@@ -361,40 +413,16 @@ public class ImageAdapter extends BaseAdapter {
     }
 
     /**
-     * 异步Drawable，保存下载该图片的异步任务
+     * 生成图片url对应的mds值作为key
      */
-    static class AsyncDrawable extends BitmapDrawable {
-        //下载太位图的异步任务
-        private final WeakReference<DownLoadBitmapTask> downLoadBitmapTaskWeakReference;
-
-        public AsyncDrawable(Resources res, Bitmap bitmap, DownLoadBitmapTask downLoadBitmapTask) {
-            super(res, bitmap);
-            downLoadBitmapTaskWeakReference = new WeakReference<>(downLoadBitmapTask);
-        }
-
-        public DownLoadBitmapTask getBitmapWorkerTask() {
-            return downLoadBitmapTaskWeakReference.get();
-        }
-    }
-
-
-    public static File getDiskCacheDir(Context context, String uniqueName) {
-        final String cachePath =
-                Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
-                        !isExternalStorageRemovable() ? context.getExternalCacheDir().getPath() :
-                        context.getCacheDir().getPath();
-
-        return new File(cachePath + File.separator + uniqueName);
-    }
-
-    public static String hashKeyForDisk(String key) {
+    public static String hashKeyForDisk(String url) {
         String cacheKey;
         try {
             final MessageDigest mDigest = MessageDigest.getInstance("MD5");
-            mDigest.update(key.getBytes());
+            mDigest.update(url.getBytes());
             cacheKey = bytesToHexString(mDigest.digest());
         } catch (NoSuchAlgorithmException e) {
-            cacheKey = String.valueOf(key.hashCode());
+            cacheKey = String.valueOf(url.hashCode());
         }
         return cacheKey;
     }

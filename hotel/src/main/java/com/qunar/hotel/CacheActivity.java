@@ -4,14 +4,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.GridView;
 
-import com.qunar.hotel.adapter.ImageAdapter;
+import com.qunar.hotel.adapter.ImageListAdapter;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 public class CacheActivity extends AppCompatActivity{
     private GridView gridView;
-    private ImageAdapter imageAdapter;
+    private ImageListAdapter imageListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +25,7 @@ public class CacheActivity extends AppCompatActivity{
             imageUrlList.add("http://localhost:8080/qserver/img/" + random.nextInt(16) % 6 + ".jpg");
 
         }
-        imageAdapter = new ImageAdapter(this, imageUrlList);
-        gridView.setAdapter(imageAdapter);
+        imageListAdapter = new ImageListAdapter(this, imageUrlList);
+        gridView.setAdapter(imageListAdapter);
     }
 }
