@@ -29,8 +29,8 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="toList"
-        android:text="toList" />
+        android:onClick="toCache"
+        android:text="toCache" />
 
     <Button
         android:layout_width="wrap_content"

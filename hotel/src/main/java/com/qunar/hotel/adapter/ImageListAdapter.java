@@ -87,7 +87,7 @@ public class ImageListAdapter extends BaseAdapter {
                 Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
                         !isExternalStorageRemovable() ? context.getExternalCacheDir().getPath() :
                         context.getCacheDir().getPath();
-
+        Log.i(TAG,"cachePath = " + cachePath);
         return new File(cachePath + File.separator + uniqueName);
     }
 
@@ -148,6 +148,7 @@ public class ImageListAdapter extends BaseAdapter {
         //先从内存缓存中获取，没有执行异步任务从硬盘缓存或者网络获取
         final Bitmap bitmap = getBitmapFromMemCache(url);
         if (bitmap != null) {
+            Log.i(TAG,"get bitmap " + url + "from memeory cache.");
             imageView.setImageBitmap(bitmap);
         } else {
             //检查复用的imageView当前是否相关的异步任务正在获取图片，如果获取的不是同一张则取消
@@ -244,6 +245,9 @@ public class ImageListAdapter extends BaseAdapter {
                 bitmap = getBitmapFromDiskCache(url);
                 if (bitmap == null) {
                     bitmap = downloadBitmapFromUrl(url);
+                    Log.i(TAG,"download bitmap " + url + "from server.");
+                }else{
+                    Log.i(TAG,"get bitmap " + url + "from disk cache.");
                 }
                 addBitmapToCache(url, bitmap);
             } catch (IOException e) {
@@ -279,6 +283,7 @@ public class ImageListAdapter extends BaseAdapter {
         //保存到内存缓存
         if (getBitmapFromMemCache(url) == null) {
             memoryCache.put(url, bitmap);
+            Log.i(TAG,"add bitmap " + url + "to memory cache.");
         }
 
         //保存到硬盘缓存
@@ -295,6 +300,7 @@ public class ImageListAdapter extends BaseAdapter {
                             outputStream = editor.newOutputStream(0);
                             bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream);
                             editor.commit();
+                            Log.i(TAG,"add bitmap " + url + "to disk cache.");
                         }
                     } else {
                         snapshot.getInputStream(0).close();
