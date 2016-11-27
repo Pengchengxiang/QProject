@@ -1,10 +1,11 @@
-package com.qunar.hotel;
+package com.qunar.hotel.view;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
 /**
+ * 正方形的ImageView
  * Created by chengxiang.peng on 2016/11/20.
  */
 

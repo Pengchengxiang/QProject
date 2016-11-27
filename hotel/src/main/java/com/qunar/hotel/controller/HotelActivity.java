@@ -1,10 +1,11 @@
-package com.qunar.hotel;
+package com.qunar.hotel.controller;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import com.qunar.hotel.R;
 import com.qunar.rn.RnActivity;
 
 public class HotelActivity extends AppCompatActivity {
@@ -15,8 +16,8 @@ public class HotelActivity extends AppCompatActivity {
         setContentView(R.layout.activity_hotel);
     }
 
-    public void toNext(View view) {
-        Intent intent = new Intent(this, NextActivity.class);
+    public void toLogin(View view) {
+        Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
     }
 

@@ -6,9 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.qunar.flight.FlightActivity;
-import com.qunar.hotel.HotelActivity;
-
-import dalvik.system.DexClassLoader;
+import com.qunar.hotel.controller.HotelActivity;
 
 public class MainActivity extends AppCompatActivity {
 

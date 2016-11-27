@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.qunar.hotel.cache;
+package com.qunar.hotel.tools;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;

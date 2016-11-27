@@ -1,19 +1,20 @@
-package com.qunar.hotel.response;
+package com.qunar.hotel.model.reponse;
 
 import java.io.Serializable;
 
 /**
+ * 登录响应
  * Created by chengxiang.peng on 2016/11/4.
  */
-public class HttpsResponse implements Serializable {
-
+public class LoginResult implements Serializable{
     private String code;
+    //登录结果
     private String message;
 
-    public HttpsResponse() {
+    public LoginResult() {
     }
 
-    public HttpsResponse(String code, String message) {
+    public LoginResult(String code, String message) {
         this.code = code;
         this.message = message;
     }
@@ -36,7 +37,7 @@ public class HttpsResponse implements Serializable {
 
     @Override
     public String toString() {
-        return "HttpsResponse{" +
+        return "LoginResult{" +
                 "code='" + code + '\'' +
                 ", message='" + message + '\'' +
                 '}';

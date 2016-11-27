@@ -1,10 +1,21 @@
-package com.qunar.hotel.ssl;
+package com.qunar.hotel.tools;
 
 import android.content.Context;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.security.KeyStore;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -14,9 +25,11 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 
 /**
+ * Https网络请求工具类
  * Created by chengxiang.peng on 2016/11/6.
  */
-public class HttpsHelper {
+public class HttpsTools {
+    private static final String SERVER_URL = "https://localhost:8443/qserver/HttpsServlet";
     //p12证书类型
     private static final String KEY_STORE_TYPE_P12 = "PKCS12";
     //bks证书类型
@@ -32,6 +45,7 @@ public class HttpsHelper {
 
     /**
      * 获取SSLContext
+     *
      * @param context 上下文
      * @return SSLContext
      */
@@ -90,15 +104,15 @@ public class HttpsHelper {
             if (sslContext != null) {
                 u = new URL(url);
                 connection = (HttpsURLConnection) u.openConnection();
-                connection.setRequestMethod(method);//"POST" "GET"
+                connection.setRequestMethod(method);
                 connection.setDoOutput(true);
                 connection.setDoInput(true);
                 connection.setUseCaches(false);
                 connection.setSSLSocketFactory(sslContext.getSocketFactory());
                 connection.setConnectTimeout(30000);
                 //忽略请求域名和证书域名的校验
-                connection.setDefaultHostnameVerifier( new HostnameVerifier(){
-                    public boolean verify(String string,SSLSession ssls) {
+                connection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                    public boolean verify(String string, SSLSession ssls) {
                         return true;
                     }
                 });
@@ -107,5 +121,81 @@ public class HttpsHelper {
             e.printStackTrace();
         }
         return connection;
+    }
+
+    /**
+     * 执行登录Get请求
+     */
+    public static String doGet(Context context,HashMap<String,String> params) {
+        String result = null;
+        try {
+            String parasString = getHashMapParamString(params);
+            String url = SERVER_URL + "?" + parasString;
+            HttpsURLConnection httpsURLConnection = HttpsTools.getHttpsURLConnection(context, url, "GET");
+            if (httpsURLConnection.getResponseCode() == 200) {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpsURLConnection.getInputStream()));
+                String readLine;
+                if ((readLine = bufferedReader.readLine()) != null) {
+                    result += readLine;
+                }
+                bufferedReader.close();
+                httpsURLConnection.disconnect();
+            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        } catch (ProtocolException e) {
+            e.printStackTrace();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    /**
+     * 执行登录Post请求
+     */
+    public static String doPost(Context context,HashMap<String,String> params) {
+        String result = new String();
+        try {
+            String parasString = getHashMapParamString(params);
+            HttpsURLConnection httpsURLConnection = HttpsTools.getHttpsURLConnection(context, SERVER_URL, "POST");
+            BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(httpsURLConnection.getOutputStream()));
+            bufferedWriter.write(parasString);
+            bufferedWriter.flush();
+
+            if (httpsURLConnection.getResponseCode() == 200) {
+                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpsURLConnection.getInputStream()));
+                String readLine;
+                if ((readLine = bufferedReader.readLine()) != null) {
+                    result += readLine;
+                }
+                bufferedReader.close();
+                httpsURLConnection.disconnect();
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    private static String getHashMapParamString(HashMap<String, String> params) {
+        Iterator iterator = params.entrySet().iterator();
+        String parasString = new String();
+        int index = 0;
+        while (iterator.hasNext()) {
+            Map.Entry entry = (Map.Entry) iterator.next();
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+            parasString += (key + "=" + value);
+            if (index < params.size() - 1) {
+                parasString += "&";
+            }
+            index ++;
+        }
+        return parasString;
     }
 }

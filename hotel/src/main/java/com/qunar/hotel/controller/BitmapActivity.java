@@ -1,4 +1,4 @@
-package com.qunar.hotel;
+package com.qunar.hotel.controller;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Gallery;
 import android.widget.ImageView;
+
+import com.qunar.hotel.R;
 
 public class BitmapActivity extends AppCompatActivity {
     private int[] images = new int[]{R.drawable.p1, R.drawable.p2, R.drawable.p3};

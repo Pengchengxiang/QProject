@@ -1,4 +1,4 @@
-package com.qunar.hotel.adapter;
+package com.qunar.hotel.controller.adapter;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -16,7 +16,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import com.qunar.hotel.R;
-import com.qunar.hotel.cache.DiskLruCache;
+import com.qunar.hotel.tools.DiskLruCache;
 
 import java.io.File;
 import java.io.FileDescriptor;
