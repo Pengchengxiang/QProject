@@ -1,4 +1,4 @@
-package com.qunar.hotel.controller;
+package com.qunar.hotel.view;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;

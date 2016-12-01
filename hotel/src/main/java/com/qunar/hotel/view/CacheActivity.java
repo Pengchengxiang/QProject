@@ -1,11 +1,11 @@
-package com.qunar.hotel.controller;
+package com.qunar.hotel.view;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.GridView;
 
 import com.qunar.hotel.R;
-import com.qunar.hotel.controller.adapter.ImageListAdapter;
+import com.qunar.hotel.view.adapter.ImageListAdapter;
 
 import java.util.ArrayList;
 import java.util.Random;

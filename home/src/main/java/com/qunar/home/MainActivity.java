@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.qunar.flight.FlightActivity;
-import com.qunar.hotel.controller.HotelActivity;
+import com.qunar.hotel.view.HotelActivity;
 
 public class MainActivity extends AppCompatActivity {
 

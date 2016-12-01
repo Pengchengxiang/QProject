@@ -1,4 +1,4 @@
-package com.qunar.hotel.controller.adapter;
+package com.qunar.hotel.view.adapter;
 
 import android.content.Context;
 import android.content.res.Resources;

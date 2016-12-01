@@ -5,7 +5,7 @@
     android:gravity="center"
     android:padding="2dp">
 
-    <com.qunar.hotel.view.SquareImageView
+    <com.qunar.hotel.view.widget.SquareImageView
         android:id="@+id/imageview1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

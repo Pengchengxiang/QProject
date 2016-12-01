@@ -12,10 +12,10 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".controller.HotelActivity" />
-        <activity android:name=".controller.LoginActivity"></activity>
-        <activity android:name=".controller.CacheActivity"></activity>
-        <activity android:name=".controller.BitmapActivity"></activity>
+        <activity android:name=".view.HotelActivity" />
+        <activity android:name=".view.LoginActivity"></activity>
+        <activity android:name=".view.CacheActivity"></activity>
+        <activity android:name=".view.BitmapActivity"></activity>
     </application>
 
 </manifest>

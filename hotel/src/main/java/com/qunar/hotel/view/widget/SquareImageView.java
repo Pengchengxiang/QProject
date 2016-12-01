@@ -1,4 +1,4 @@
-package com.qunar.hotel.view;
+package com.qunar.hotel.view.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;

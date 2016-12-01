@@ -1,4 +1,4 @@
-package com.qunar.hotel.controller;
+package com.qunar.hotel.view;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
