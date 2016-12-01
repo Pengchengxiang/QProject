@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.qunar.hotel.R;
 import com.qunar.hotel.model.LoginModel;
 import com.qunar.hotel.model.LoginModelImp;
+import com.qunar.hotel.model.reponse.LoginParam;
 import com.qunar.hotel.model.reponse.LoginResult;
 import com.qunar.hotel.view.LoginInputView;
 
@@ -68,8 +69,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         new Thread(new Runnable() {
             @Override
             public void run() {
+                LoginParam loginParam = new LoginParam(userName,passWorld);
                 //Controller层将用户输入登录信息，发送到Model层执行登录相关逻辑
-                LoginResult loginResult = loginModel.loginByUserNameAndPassword(LoginActivity.this, userName, passWorld);
+                LoginResult loginResult = loginModel.loginByUserNameAndPassword(LoginActivity.this,loginParam);
 
                 //Model层获取登录信息后，通知Controller层更新UI
                 Message message = handler.obtainMessage();

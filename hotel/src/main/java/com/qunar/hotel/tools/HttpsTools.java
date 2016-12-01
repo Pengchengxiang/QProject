@@ -2,6 +2,11 @@ package com.qunar.hotel.tools;
 
 import android.content.Context;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.qunar.hotel.model.reponse.BaseParam;
+import com.qunar.hotel.model.reponse.BaseResult;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -16,6 +21,7 @@ import java.security.KeyStore;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -126,10 +132,10 @@ public class HttpsTools {
     /**
      * 执行登录Get请求
      */
-    public static String doGet(Context context,HashMap<String,String> params) {
+    public static String doGet(Context context,BaseParam params) {
         String result = null;
         try {
-            String parasString = getHashMapParamString(params);
+            String parasString = getParamsString(params);
             String url = SERVER_URL + "?" + parasString;
             HttpsURLConnection httpsURLConnection = HttpsTools.getHttpsURLConnection(context, url, "GET");
             if (httpsURLConnection.getResponseCode() == 200) {
@@ -150,16 +156,17 @@ public class HttpsTools {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return result;
     }
 
     /**
      * 执行登录Post请求
      */
-    public static String doPost(Context context,HashMap<String,String> params) {
+    public static String doPost(Context context, BaseParam params) {
         String result = new String();
         try {
-            String parasString = getHashMapParamString(params);
+            String parasString = getParamsString(params);
             HttpsURLConnection httpsURLConnection = HttpsTools.getHttpsURLConnection(context, SERVER_URL, "POST");
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(httpsURLConnection.getOutputStream()));
             bufferedWriter.write(parasString);
@@ -179,23 +186,34 @@ public class HttpsTools {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return result;
     }
 
-    private static String getHashMapParamString(HashMap<String, String> params) {
-        Iterator iterator = params.entrySet().iterator();
-        String parasString = new String();
+    /**
+     * 获取参数字符串
+     * @param params 网络请求对象
+     * @return 参数字符串
+     */
+    private static String getParamsString(BaseParam params) {
+        JSONObject jsonObject = (JSONObject) JSON.toJSON(params);
+
         int index = 0;
+        String parasString = new String();
+
+        Set<String> keys = jsonObject.keySet();
+        Iterator iterator = keys.iterator();
         while (iterator.hasNext()) {
-            Map.Entry entry = (Map.Entry) iterator.next();
-            Object key = entry.getKey();
-            Object value = entry.getValue();
+            String key = (String) iterator.next();
+            Object value = jsonObject.get(key);
             parasString += (key + "=" + value);
-            if (index < params.size() - 1) {
+
+            if (index < keys.size() - 1) {
                 parasString += "&";
             }
             index ++;
         }
+
         return parasString;
     }
 }

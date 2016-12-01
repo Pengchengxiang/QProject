@@ -1,12 +1,10 @@
 package com.qunar.hotel.model.reponse;
 
-import java.io.Serializable;
-
 /**
  * 登录响应
  * Created by chengxiang.peng on 2016/11/4.
  */
-public class LoginResult implements Serializable{
+public class LoginResult extends BaseResult {
     private String code;
     //登录结果
     private String message;
@@ -33,13 +31,5 @@ public class LoginResult implements Serializable{
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    @Override
-    public String toString() {
-        return "LoginResult{" +
-                "code='" + code + '\'' +
-                ", message='" + message + '\'' +
-                '}';
     }
 }

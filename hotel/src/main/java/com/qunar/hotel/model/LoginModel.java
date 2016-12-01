@@ -2,6 +2,7 @@ package com.qunar.hotel.model;
 
 import android.content.Context;
 
+import com.qunar.hotel.model.reponse.LoginParam;
 import com.qunar.hotel.model.reponse.LoginResult;
 
 /**
@@ -10,5 +11,5 @@ import com.qunar.hotel.model.reponse.LoginResult;
  */
 
 public interface LoginModel {
-    LoginResult loginByUserNameAndPassword(Context context, String userName, String passWord);
+    LoginResult loginByUserNameAndPassword(Context context, LoginParam loginParam);
 }
