@@ -1,11 +1,13 @@
-package com.qunar.hotel.model.reponse;
+package com.qunar.hotel.model.reponse.login;
+
+import com.qunar.hotel.model.reponse.BaseParam;
 
 /**
  * 登录参数
  * Created by chengxiang.peng on 2016/12/1.
  */
 
-public class LoginParam extends BaseParam{
+public class LoginParam extends BaseParam {
     private String userName;
     private String passWord;
 

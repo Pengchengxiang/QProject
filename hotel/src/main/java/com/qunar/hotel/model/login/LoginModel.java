@@ -1,9 +1,9 @@
-package com.qunar.hotel.model;
+package com.qunar.hotel.model.login;
 
 import android.content.Context;
 
-import com.qunar.hotel.model.reponse.LoginParam;
-import com.qunar.hotel.model.reponse.LoginResult;
+import com.qunar.hotel.model.reponse.login.LoginParam;
+import com.qunar.hotel.model.reponse.login.LoginResult;
 
 /**
  * 登录模型接口

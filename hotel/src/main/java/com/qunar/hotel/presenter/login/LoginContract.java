@@ -1,10 +1,12 @@
-package com.qunar.hotel.presenter;
+package com.qunar.hotel.presenter.login;
 
 import android.content.Context;
 import android.os.Message;
 
-import com.qunar.hotel.model.reponse.LoginParam;
-import com.qunar.hotel.model.reponse.LoginResult;
+import com.qunar.hotel.model.reponse.login.LoginParam;
+import com.qunar.hotel.model.reponse.login.LoginResult;
+import com.qunar.hotel.presenter.BasePresenter;
+import com.qunar.hotel.presenter.BaseView;
 
 /**
  * 登录View和Modle沟通接口

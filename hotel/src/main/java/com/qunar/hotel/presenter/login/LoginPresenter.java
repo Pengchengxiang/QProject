@@ -1,10 +1,10 @@
-package com.qunar.hotel.presenter;
+package com.qunar.hotel.presenter.login;
 
 import android.content.Context;
 
-import com.qunar.hotel.model.LoginModel;
-import com.qunar.hotel.model.reponse.LoginParam;
-import com.qunar.hotel.model.reponse.LoginResult;
+import com.qunar.hotel.model.login.LoginModel;
+import com.qunar.hotel.model.reponse.login.LoginParam;
+import com.qunar.hotel.model.reponse.login.LoginResult;
 
 /**
  * 登录Preserent类，处理从Model层获取数据，在View层更新

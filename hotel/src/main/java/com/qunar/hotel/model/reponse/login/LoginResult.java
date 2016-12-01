@@ -1,4 +1,6 @@
-package com.qunar.hotel.model.reponse;
+package com.qunar.hotel.model.reponse.login;
+
+import com.qunar.hotel.model.reponse.BaseResult;
 
 /**
  * 登录响应

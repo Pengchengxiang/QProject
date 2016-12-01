@@ -9,11 +9,11 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.qunar.hotel.R;
-import com.qunar.hotel.model.LoginModelImp;
-import com.qunar.hotel.model.reponse.LoginParam;
-import com.qunar.hotel.model.reponse.LoginResult;
-import com.qunar.hotel.presenter.LoginContract;
-import com.qunar.hotel.presenter.LoginPresenter;
+import com.qunar.hotel.model.login.LoginModelImp;
+import com.qunar.hotel.model.reponse.login.LoginParam;
+import com.qunar.hotel.model.reponse.login.LoginResult;
+import com.qunar.hotel.presenter.login.LoginContract;
+import com.qunar.hotel.presenter.login.LoginPresenter;
 import com.qunar.hotel.view.widget.LoginInputView;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, LoginContract.View {
