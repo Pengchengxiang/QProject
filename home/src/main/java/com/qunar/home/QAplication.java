@@ -7,7 +7,6 @@ import org.xutils.x;
 /**
  * Created by chengxiang.peng on 2016/12/9.
  */
-
 public class QAplication extends Application{
     @Override
     public void onCreate() {
