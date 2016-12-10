@@ -1,6 +1,5 @@
 package com.qunar.home.render.view;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -9,9 +8,9 @@ import android.widget.Toast;
 
 import com.qunar.common.QBaseActivity;
 import com.qunar.home.R;
-import com.qunar.home.render.model.RenderResultQ;
+import com.qunar.home.render.model.RenderResult;
 import com.qunar.home.render.presenter.RenderContact;
-import com.qunar.home.render.presenter.RenderPresenterQ;
+import com.qunar.home.render.presenter.RenderPresenter;
 
 import org.xutils.view.annotation.ContentView;
 import org.xutils.view.annotation.Event;
@@ -27,7 +26,7 @@ public class RenderActivity extends QBaseActivity implements RenderContact.ViewQ
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        renderPresenter = new RenderPresenterQ(this);
+        renderPresenter = new RenderPresenter(this);
         renderPresenter.showRenderList(this);
     }
 
@@ -37,7 +36,7 @@ public class RenderActivity extends QBaseActivity implements RenderContact.ViewQ
     }
 
     @Override
-    public void initRenderListShow(RenderResultQ renderResult) {
+    public void initRenderListShow(RenderResult renderResult) {
         RenderListAdapter renderListAdapter = new RenderListAdapter(this, renderResult.getRenderListItemList());
         renderListView.setAdapter(renderListAdapter);
     }

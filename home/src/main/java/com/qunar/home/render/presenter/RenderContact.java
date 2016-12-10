@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.qunar.common.QBasePresenter;
 import com.qunar.common.QBaseView;
-import com.qunar.home.render.model.RenderResultQ;
+import com.qunar.home.render.model.RenderResult;
 
 /**
  * Render页面View和Present层沟通接口定义
@@ -17,7 +17,7 @@ public interface RenderContact {
          * 初始化Render列表的显示
          * @param renderResult
          */
-        void initRenderListShow(RenderResultQ renderResult);
+        void initRenderListShow(RenderResult renderResult);
     }
 
     interface PresenterQ extends QBasePresenter {

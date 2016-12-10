@@ -5,7 +5,7 @@ import android.widget.Toast;
 
 import com.qunar.common.QConfig;
 import com.qunar.common.utils.HttpsTools;
-import com.qunar.home.render.model.RenderResultQ;
+import com.qunar.home.render.model.RenderResult;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -16,7 +16,7 @@ import org.xutils.x;
  * Created by chengxiang.peng on 2016/12/9.
  */
 
-public class RenderPresenterQ implements RenderContact.PresenterQ {
+public class RenderPresenter implements RenderContact.PresenterQ {
     private RenderContact.ViewQ renderView;
 
     /**
@@ -24,7 +24,7 @@ public class RenderPresenterQ implements RenderContact.PresenterQ {
      *
      * @param renderView render View层对象
      */
-    public RenderPresenterQ(RenderContact.ViewQ renderView) {
+    public RenderPresenter(RenderContact.ViewQ renderView) {
         this.renderView = renderView;
     }
 
@@ -35,11 +35,13 @@ public class RenderPresenterQ implements RenderContact.PresenterQ {
 
     @Override
     public void showRenderList(Context context) {
+        //Presenter层，请求Render列表数据
         RequestParams renderParams = new RequestParams(QConfig.SERVER_URL + "RenderServlet");
         renderParams.setSslSocketFactory(HttpsTools.getSSLContext(context).getSocketFactory());
-        x.http().post(renderParams, new Callback.CommonCallback<RenderResultQ>() {
+        x.http().post(renderParams, new Callback.CommonCallback<RenderResult>() {
             @Override
-            public void onSuccess(RenderResultQ result) {
+            public void onSuccess(RenderResult result) {
+                //调用View接口层方法，展示Render列表数据
                 renderView.initRenderListShow(result);
             }
 

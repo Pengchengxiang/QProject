@@ -12,10 +12,10 @@ import java.util.List;
  * Created by chengxiang.peng on 2016/12/9.
  */
 @HttpResponse(parser = JsonResponseParser.class)
-public class RenderResultQ extends QBaseResult {
+public class RenderResult extends QBaseResult {
     private List<RenderListItem> renderListItemList;
 
-    public RenderResultQ(){}
+    public RenderResult(){}
 
     public List<RenderListItem> getRenderListItemList() {
         return renderListItemList;
