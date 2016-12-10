@@ -2,9 +2,9 @@ package com.qunar.home.render.presenter;
 
 import android.content.Context;
 
-import com.qunar.common.BasePresenter;
-import com.qunar.common.BaseView;
-import com.qunar.home.render.model.RenderResult;
+import com.qunar.common.QBasePresenter;
+import com.qunar.common.QBaseView;
+import com.qunar.home.render.model.RenderResultQ;
 
 /**
  * Render页面View和Present层沟通接口定义
@@ -12,15 +12,15 @@ import com.qunar.home.render.model.RenderResult;
  */
 
 public interface RenderContact {
-    interface View extends BaseView<Presenter> {
+    interface ViewQ extends QBaseView<PresenterQ> {
         /**
          * 初始化Render列表的显示
          * @param renderResult
          */
-        void initRenderListShow(RenderResult renderResult);
+        void initRenderListShow(RenderResultQ renderResult);
     }
 
-    interface Presenter extends BasePresenter {
+    interface PresenterQ extends QBasePresenter {
         /**
          * 显示Render列表
          */

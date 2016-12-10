@@ -3,9 +3,9 @@ package com.qunar.home.render.presenter;
 import android.content.Context;
 import android.widget.Toast;
 
-import com.qunar.common.CommonConfig;
+import com.qunar.common.QConfig;
 import com.qunar.common.utils.HttpsTools;
-import com.qunar.home.render.model.RenderResult;
+import com.qunar.home.render.model.RenderResultQ;
 
 import org.xutils.common.Callback;
 import org.xutils.http.RequestParams;
@@ -16,15 +16,15 @@ import org.xutils.x;
  * Created by chengxiang.peng on 2016/12/9.
  */
 
-public class RenderPresenter implements RenderContact.Presenter {
-    private RenderContact.View renderView;
+public class RenderPresenterQ implements RenderContact.PresenterQ {
+    private RenderContact.ViewQ renderView;
 
     /**
      * 构造方法
      *
      * @param renderView render View层对象
      */
-    public RenderPresenter(RenderContact.View renderView) {
+    public RenderPresenterQ(RenderContact.ViewQ renderView) {
         this.renderView = renderView;
     }
 
@@ -35,11 +35,11 @@ public class RenderPresenter implements RenderContact.Presenter {
 
     @Override
     public void showRenderList(Context context) {
-        RequestParams renderParams = new RequestParams(CommonConfig.SERVER_URL + "RenderServlet");
+        RequestParams renderParams = new RequestParams(QConfig.SERVER_URL + "RenderServlet");
         renderParams.setSslSocketFactory(HttpsTools.getSSLContext(context).getSocketFactory());
-        x.http().post(renderParams, new Callback.CommonCallback<RenderResult>() {
+        x.http().post(renderParams, new Callback.CommonCallback<RenderResultQ>() {
             @Override
-            public void onSuccess(RenderResult result) {
+            public void onSuccess(RenderResultQ result) {
                 renderView.initRenderListShow(result);
             }
 

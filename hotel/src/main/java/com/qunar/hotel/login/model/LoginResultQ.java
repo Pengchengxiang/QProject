@@ -1,20 +1,20 @@
 package com.qunar.hotel.login.model;
 
-import com.qunar.common.BaseResult;
+import com.qunar.common.QBaseResult;
 
 /**
  * 登录响应
  * Created by chengxiang.peng on 2016/11/4.
  */
-public class LoginResult extends BaseResult {
+public class LoginResultQ extends QBaseResult {
     private String code;
     //登录结果
     private String message;
 
-    public LoginResult() {
+    public LoginResultQ() {
     }
 
-    public LoginResult(String code, String message) {
+    public LoginResultQ(String code, String message) {
         this.code = code;
         this.message = message;
     }

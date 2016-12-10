@@ -8,5 +8,5 @@ import android.content.Context;
  */
 
 public interface LoginModel {
-    LoginResult loginByUserNameAndPassword(Context context, LoginParam loginParam);
+    LoginResultQ loginByUserNameAndPassword(Context context, LoginParamQ loginParam);
 }

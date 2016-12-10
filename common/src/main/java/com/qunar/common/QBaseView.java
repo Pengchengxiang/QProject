@@ -1,5 +1,5 @@
 package com.qunar.common;
 
-public interface BaseView<T> {
+public interface QBaseView<T> {
     void setPresenter(T presenter);
 }

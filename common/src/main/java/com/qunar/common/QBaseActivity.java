@@ -8,7 +8,7 @@ import org.xutils.x;
 /**
  * Created by chengxiang.peng on 2016/12/9.
  */
-public class BaseActivity extends AppCompatActivity {
+public class QBaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

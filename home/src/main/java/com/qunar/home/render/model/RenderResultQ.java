@@ -1,6 +1,6 @@
 package com.qunar.home.render.model;
 
-import com.qunar.common.BaseResult;
+import com.qunar.common.QBaseResult;
 
 import org.xutils.http.annotation.HttpResponse;
 
@@ -12,10 +12,10 @@ import java.util.List;
  * Created by chengxiang.peng on 2016/12/9.
  */
 @HttpResponse(parser = JsonResponseParser.class)
-public class RenderResult extends BaseResult {
+public class RenderResultQ extends QBaseResult {
     private List<RenderListItem> renderListItemList;
 
-    public RenderResult(){}
+    public RenderResultQ(){}
 
     public List<RenderListItem> getRenderListItemList() {
         return renderListItemList;

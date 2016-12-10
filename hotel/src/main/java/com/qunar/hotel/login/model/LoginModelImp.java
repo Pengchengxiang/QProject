@@ -11,9 +11,9 @@ import com.qunar.common.utils.HttpsTools;
 
 public class LoginModelImp implements LoginModel {
     @Override
-    public LoginResult loginByUserNameAndPassword(Context context, LoginParam loginParam) {
+    public LoginResultQ loginByUserNameAndPassword(Context context, LoginParamQ loginParam) {
         String result = HttpsTools.doPost(context, loginParam);
-        LoginResult loginResult = JSON.parseObject(result, LoginResult.class);
+        LoginResultQ loginResult = JSON.parseObject(result, LoginResultQ.class);
         return loginResult;
     }
 }

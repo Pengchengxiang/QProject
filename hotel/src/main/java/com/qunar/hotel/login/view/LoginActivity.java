@@ -11,18 +11,18 @@ import android.widget.TextView;
 import com.qunar.hotel.R;
 import com.qunar.hotel.login.presenter.LoginContract;
 import com.qunar.hotel.login.model.LoginModelImp;
-import com.qunar.hotel.login.model.LoginParam;
-import com.qunar.hotel.login.presenter.LoginPresenter;
-import com.qunar.hotel.login.model.LoginResult;
+import com.qunar.hotel.login.model.LoginParamQ;
+import com.qunar.hotel.login.presenter.LoginPresenterQ;
+import com.qunar.hotel.login.model.LoginResultQ;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener, LoginContract.View {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener, LoginContract.ViewQ {
     private LoginInputView userNameInput;
     private LoginInputView passWordInput;
     private Button loginButton;
     private TextView responseTextView;
 
     private Handler handler = new LoginHander();
-    private LoginContract.Presenter loginPesenter;
+    private LoginContract.PresenterQ loginPesenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +33,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         loginButton = (Button) findViewById(R.id.login_login_button);
         responseTextView = (TextView) findViewById(R.id.login_result_text);
 
-        loginPesenter = new LoginPresenter(new LoginModelImp(), this);
+        loginPesenter = new LoginPresenterQ(new LoginModelImp(), this);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         loginPesenter.doLoginRequest(LoginActivity.this);
     }
 
-    public void setPresenter(LoginContract.Presenter presenter) {
+    public void setPresenter(LoginContract.PresenterQ presenter) {
         loginPesenter = presenter;
     }
 
@@ -59,15 +59,15 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     @Override
-    public LoginParam getInputLoginParam() {
+    public LoginParamQ getInputLoginParam() {
         final String userName = userNameInput.getContent();
         final String passWorld = passWordInput.getContent();
-        LoginParam loginParam = new LoginParam(userName, passWorld);
+        LoginParamQ loginParam = new LoginParamQ(userName, passWorld);
         return loginParam;
     }
 
     @Override
-    public void sendShowLoginMessage(LoginResult loginResult) {
+    public void sendShowLoginMessage(LoginResultQ loginResult) {
         Message message = handler.obtainMessage();
         message.what = 1;
         Bundle bundle = new Bundle();
@@ -79,7 +79,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     @Override
     public void updateLoginResultByMessage(Message message) {
         Bundle bundle = message.getData();
-        LoginResult loginResult = (LoginResult) bundle.getSerializable("result");
+        LoginResultQ loginResult = (LoginResultQ) bundle.getSerializable("result");
         updateLoginResultByString(loginResult.getMessage());
     }
 

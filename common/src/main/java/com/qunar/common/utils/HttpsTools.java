@@ -4,8 +4,8 @@ import android.content.Context;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.qunar.common.BaseParam;
-import com.qunar.common.CommonConfig;
+import com.qunar.common.QBaseParam;
+import com.qunar.common.QConfig;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -129,11 +129,11 @@ public class HttpsTools {
     /**
      * 执行登录Get请求
      */
-    public static String doGet(Context context, BaseParam params) {
+    public static String doGet(Context context, QBaseParam params) {
         String result = null;
         try {
             String parasString = getParamsString(params);
-            String url = CommonConfig.SERVER_URL + "HttpsServlet?" + parasString;
+            String url = QConfig.SERVER_URL + "HttpsServlet?" + parasString;
             HttpsURLConnection httpsURLConnection = HttpsTools.getHttpsURLConnection(context, url, "GET");
             if (httpsURLConnection.getResponseCode() == 200) {
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpsURLConnection.getInputStream()));
@@ -160,11 +160,11 @@ public class HttpsTools {
     /**
      * 执行登录Post请求
      */
-    public static String doPost(Context context, BaseParam params) {
+    public static String doPost(Context context, QBaseParam params) {
         String result = new String();
         try {
             String parasString = getParamsString(params);
-            HttpsURLConnection httpsURLConnection = HttpsTools.getHttpsURLConnection(context, CommonConfig.SERVER_URL + "HttpsServlet", "POST");
+            HttpsURLConnection httpsURLConnection = HttpsTools.getHttpsURLConnection(context, QConfig.SERVER_URL + "HttpsServlet", "POST");
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(httpsURLConnection.getOutputStream()));
             bufferedWriter.write(parasString);
             bufferedWriter.flush();
@@ -193,7 +193,7 @@ public class HttpsTools {
      * @param params 网络请求对象
      * @return 参数字符串
      */
-    private static String getParamsString(BaseParam params) {
+    private static String getParamsString(QBaseParam params) {
         JSONObject jsonObject = (JSONObject) JSON.toJSON(params);
 
         int index = 0;

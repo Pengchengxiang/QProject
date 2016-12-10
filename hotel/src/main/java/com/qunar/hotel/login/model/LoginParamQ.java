@@ -1,17 +1,17 @@
 package com.qunar.hotel.login.model;
 
-import com.qunar.common.BaseParam;
+import com.qunar.common.QBaseParam;
 
 /**
  * 登录参数
  * Created by chengxiang.peng on 2016/12/1.
  */
 
-public class LoginParam extends BaseParam {
+public class LoginParamQ extends QBaseParam {
     private String userName;
     private String passWord;
 
-    public LoginParam(String userName, String passWord) {
+    public LoginParamQ(String userName, String passWord) {
         this.userName = userName;
         this.passWord = passWord;
     }

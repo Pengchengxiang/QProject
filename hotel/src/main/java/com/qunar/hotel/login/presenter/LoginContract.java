@@ -3,10 +3,10 @@ package com.qunar.hotel.login.presenter;
 import android.content.Context;
 import android.os.Message;
 
-import com.qunar.common.BasePresenter;
-import com.qunar.common.BaseView;
-import com.qunar.hotel.login.model.LoginParam;
-import com.qunar.hotel.login.model.LoginResult;
+import com.qunar.common.QBasePresenter;
+import com.qunar.common.QBaseView;
+import com.qunar.hotel.login.model.LoginParamQ;
+import com.qunar.hotel.login.model.LoginResultQ;
 
 /**
  * 登录View和Modle沟通接口
@@ -14,7 +14,7 @@ import com.qunar.hotel.login.model.LoginResult;
  */
 
 public interface LoginContract {
-    interface View extends BaseView<Presenter> {
+    interface ViewQ extends QBaseView<PresenterQ> {
         /**
          * 初始化登录页面显示
          */
@@ -23,12 +23,12 @@ public interface LoginContract {
         /**
          * 获取输入的登录参数
          */
-        LoginParam getInputLoginParam();
+        LoginParamQ getInputLoginParam();
 
         /**
          * 发送显示登录结果消息
          */
-        void sendShowLoginMessage(LoginResult loginResult);
+        void sendShowLoginMessage(LoginResultQ loginResult);
 
         /**
          * 通过消息更新登录结果
@@ -41,7 +41,7 @@ public interface LoginContract {
         void updateLoginResultByString(String s);
     }
 
-    interface Presenter extends BasePresenter {
+    interface PresenterQ extends QBasePresenter {
         /**
          * 执行登录请求
          */

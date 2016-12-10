@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.qunar.common.utils.HttpsTools;
 import com.qunar.home.R;
-import com.qunar.home.render.model.RenderResult;
+import com.qunar.home.render.model.RenderResultQ;
 
 import org.xutils.common.util.DensityUtil;
 import org.xutils.http.RequestParams;
@@ -25,11 +25,11 @@ import java.util.List;
  * Created by chengxiang.peng on 2016/12/9.
  */
 public class RenderListAdapter extends BaseAdapter {
-    private List<RenderResult.RenderListItem> renderListItems;
+    private List<RenderResultQ.RenderListItem> renderListItems;
     private final LayoutInflater layoutInflater;
     private ImageOptions imageOptions;
 
-    public RenderListAdapter(final Context context, List<RenderResult.RenderListItem> renderListItems) {
+    public RenderListAdapter(final Context context, List<RenderResultQ.RenderListItem> renderListItems) {
         this.renderListItems = renderListItems;
         this.layoutInflater = LayoutInflater.from(context);
 
@@ -72,7 +72,7 @@ public class RenderListAdapter extends BaseAdapter {
             holder = (ItemHolder) convertView.getTag();
         }
 
-        RenderResult.RenderListItem renderListItem = renderListItems.get(position);
+        RenderResultQ.RenderListItem renderListItem = renderListItems.get(position);
         x.image().bind(holder.imageView, renderListItem.getImageUrl(), imageOptions);
         holder.title.setText(renderListItem.getItemTitle());
         holder.description.setText(renderListItem.getItemDescription());
