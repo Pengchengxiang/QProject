@@ -6,7 +6,10 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.qunar.flight.FlightActivity;
-import com.qunar.hotel.view.HotelActivity;
+import com.qunar.home.classloader.ClassLoaderActivity;
+import com.qunar.home.render.view.RenderActivity;
+import com.qunar.home.smartupdate.SmartUpdateActivity;
+import com.qunar.hotel.HotelActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,6 +36,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void toClassLoader(View view) {
         Intent intent = new Intent(this, ClassLoaderActivity.class);
+        startActivity(intent);
+    }
+
+    public void toRender(View view) {
+        Intent intent = new Intent(this, RenderActivity.class);
         startActivity(intent);
     }
 }

@@ -4,14 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.qunar.hotel.view.LoginActivity">
+    tools:context="com.qunar.hotel.login.view.LoginActivity">
 
-    <com.qunar.hotel.view.widget.LoginInputView
+    <com.qunar.hotel.login.view.LoginInputView
         android:id="@+id/login_intput_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <com.qunar.hotel.view.widget.LoginInputView
+    <com.qunar.hotel.login.view.LoginInputView
         android:id="@+id/login_intput_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

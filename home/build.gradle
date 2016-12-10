@@ -30,4 +30,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile project(":hotel")
     compile project(":flight")
+    compile project(":common")
 }
