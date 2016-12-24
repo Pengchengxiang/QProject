@@ -1,1 +1,1 @@
-include ':main', ':ui', ':feature', ':rn', ':common'
+include ':main', ':ui', ':feature', ':rn', ':common', ':test'

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.qunar.hotel.login.view.LoginActivity">
+    tools:context="com.qproject.feature.login.view.LoginActivity">
 
     <com.qunar.hotel.login.view.LoginInputView
         android:id="@+id/login_intput_username"

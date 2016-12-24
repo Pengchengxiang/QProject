@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.qunar.rn">
+    package="com.qproject.rn">
 
     <application
         android:allowBackup="true"
