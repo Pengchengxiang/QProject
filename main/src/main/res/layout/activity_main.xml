@@ -30,6 +30,12 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="toTest"
+        android:text="test" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:onClick="toSmartUpdate"
         android:text="smartupdate" />
 

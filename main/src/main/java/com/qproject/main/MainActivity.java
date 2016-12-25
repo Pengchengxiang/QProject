@@ -1,4 +1,4 @@
-package com.qunar.home;
+package com.qproject.main;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.qproject.main.R;
+import com.qproject.test.TestActivity;
 import com.qproject.ui.UiActivity;
 import com.qproject.main.classloader.ClassLoaderActivity;
 import com.qproject.main.render.view.RenderActivity;
@@ -27,6 +28,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void toUi(View view) {
         Intent intent = new Intent(this, UiActivity.class);
+        startActivity(intent);
+    }
+
+    public void toTest(View view) {
+        Intent intent = new Intent(this, TestActivity.class);
         startActivity(intent);
     }
 
