@@ -9,5 +9,6 @@ public class NameSpaceActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_namespace);
+        int res = getResources().getIdentifier("dyused_knowledge_img", "drawable", getPackageName());
     }
 }
