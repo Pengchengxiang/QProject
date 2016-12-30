@@ -16,7 +16,7 @@ import com.qproject.knowledge.R;
 
 public class CustomView extends View {
     private int fillColor = Color.BLACK;
-    private Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Paint paint = new Paint();
 
     public CustomView(Context context) {
         super(context);
@@ -25,16 +25,11 @@ public class CustomView extends View {
 
     public CustomView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
-    }
-
-    public CustomView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
         //获取自定义属性
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.CustomView);
         fillColor = typedArray.getColor(R.styleable.CustomView_fillColor, Color.BLACK);
         typedArray.recycle();
-        
+
         init();
     }
 
