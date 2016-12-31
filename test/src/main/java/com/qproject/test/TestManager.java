@@ -2,8 +2,6 @@ package com.qproject.test;
 
 import android.content.Context;
 
-import junit.framework.Test;
-
 /**
  * Created by chengxiang.peng on 2016/12/25.
  */

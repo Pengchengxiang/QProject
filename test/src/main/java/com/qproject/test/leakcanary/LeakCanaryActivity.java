@@ -1,10 +1,7 @@
 package com.qproject.test.leakcanary;
 
-import android.os.Handler;
-import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.ImageView;
 
 import com.qproject.test.R;
 import com.qproject.test.TestManager;
